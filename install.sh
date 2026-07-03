@@ -251,6 +251,8 @@ media-fonts/nerd-fonts      ~amd64
 # Misc tools from GURU
 app-shells/starship         ~amd64
 app-misc/eza                ~amd64
+app-misc/fastfetch          ~amd64
+app-shells/zsh-history-substring-search ~amd64
 KWEOF
 )
     if [[ -f "$kw_file" ]]; then
@@ -390,7 +392,7 @@ install_packages() {
 
     # ── Cursor ────────────────────────────────────────────────
     info "── Cursor theme"
-    emerge_pkg "x11-themes/catppuccin-cursors"
+    emerge_pkg "x11-themes/bibata-cursor-theme"
 
     # ── Misc CLI tools ────────────────────────────────────────
     info "── CLI tools"
@@ -403,6 +405,8 @@ install_packages() {
     emerge_pkg "net-misc/curl"
     emerge_pkg "dev-python/requests"
     emerge_pkg "app-misc/lm-sensors"
+    emerge_pkg "app-misc/fastfetch"
+    emerge_pkg "app-shells/zsh-history-substring-search"
 
     # ── CPU power management ──────────────────────────────────
     info "── CPU management"
@@ -474,6 +478,7 @@ install_symlinks() {
     do_symlink ".config/waybar/config.jsonc"
     do_symlink ".config/waybar/style.css"
     do_symlink ".config/kitty/kitty.conf"
+    do_symlink ".config/kitty/themes/rimuru.conf"
     do_symlink ".config/mako/config"
     do_symlink ".config/wofi/config"
     do_symlink ".config/wofi/style.css"
@@ -481,6 +486,8 @@ install_symlinks() {
     do_symlink ".config/starship/starship.toml"
     do_symlink ".config/gtk-3.0/settings.ini"
     do_symlink ".config/gtk-4.0/settings.ini"
+    do_symlink ".config/fastfetch/config.jsonc"
+    do_symlink ".config/fastfetch/rimuru.txt"
 
     # Scripts
     info "Linking scripts..."
