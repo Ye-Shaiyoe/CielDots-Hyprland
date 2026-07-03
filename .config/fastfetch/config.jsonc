@@ -1,0 +1,57 @@
+// CielDots — Rimuru Tempest Fastfetch
+// Inspired by JaKooLit tree-style layout
+{
+    "logo": {
+        "source": "~/.config/fastfetch/rimuru.txt",
+        "color": {
+            "1": "cyan",
+            "2": "blue"
+        },
+        "padding": {
+            "top": 1,
+            "left": 2
+        }
+    },
+    "display": {
+        "separator": "  󰑃  ",
+        "color": {
+            "keys":  "cyan",
+            "title": "blue"
+        }
+    },
+    "modules": [
+        "break",
+        { "type": "os",       "key": " 󰣨 SYSTEM", "keyColor": "cyan" },
+        { "type": "kernel",   "key": "│ ├󰒔",       "keyColor": "cyan" },
+        { "type": "packages", "key": "│ ├󰏖",       "keyColor": "cyan" },
+        { "type": "uptime",   "key": "│ ├󰅐",       "keyColor": "cyan" },
+        { "type": "shell",    "key": "│ └ ",        "keyColor": "cyan" },
+        "break",
+        { "type": "wm",           "key": "  DE/WM",  "keyColor": "blue" },
+        { "type": "wmtheme",      "key": "│ ├󰉼",    "keyColor": "blue" },
+        { "type": "icons",        "key": "│ ├󰀻",    "keyColor": "blue" },
+        { "type": "cursor",       "key": "│ ├",      "keyColor": "blue" },
+        { "type": "terminal",     "key": "│ ├",      "keyColor": "blue" },
+        { "type": "terminalfont", "key": "│ └",      "keyColor": "blue" },
+        "break",
+        { "type": "host",    "key": "󰌢 HARDWARE",  "keyColor": "green" },
+        { "type": "cpu",     "key": "│ ├󰻠",        "keyColor": "green" },
+        { "type": "gpu",     "key": "│ ├󰻑",        "format": "{2}", "keyColor": "green" },
+        { "type": "memory",  "key": "│ ├󰾆",        "keyColor": "green" },
+        { "type": "swap",    "key": "│ ├󰓡",        "keyColor": "green" },
+        { "type": "disk",    "key": "│ ├󰋊",        "keyColor": "green" },
+        {
+            "type": "display",
+            "key": "│ └󰍹",
+            "keyColor": "green",
+            "compactType": "original-with-refresh-rate"
+        },
+        "break",
+        { "type": "sound",  "key": " AUDIO",  "format": "{2}", "keyColor": "magenta" },
+        { "type": "player", "key": "│ ├󰥠",   "keyColor": "magenta" },
+        { "type": "media",  "key": "│ └󰝚",   "keyColor": "magenta" },
+        "break",
+        { "type": "colors", "paddingLeft": 2, "symbol": "block" },
+        "break"
+    ]
+}

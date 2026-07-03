@@ -1,11 +1,11 @@
 {
     "layer": "top",
     "position": "top",
-    "height": 36,
+    "height": 38,
     "spacing": 4,
-    "margin-top": 6,
-    "margin-left": 12,
-    "margin-right": 12,
+    "margin-top": 8,
+    "margin-left": 14,
+    "margin-right": 14,
 
     "modules-left": [
         "hyprland/workspaces",
@@ -17,6 +17,8 @@
     ],
 
     "modules-right": [
+        "custom/weather",
+        "custom/cpu-temp",
         "tray",
         "pulseaudio",
         "network",
@@ -24,85 +26,120 @@
         "custom/power"
     ],
 
+    // ── Workspaces — Rimuru's skills as labels ─────────────────
     "hyprland/workspaces": {
         "format": "{icon}",
         "on-click": "activate",
         "format-icons": {
             "1": "󰖟",
             "2": "󰨞",
-            "3": "󰉋",
+            "3": "󱃐",
             "4": "󰎆",
-            "5": "󰋖",
-            "urgent": "",
-            "active": "",
-            "default": ""
+            "5": "󱞣",
+            "urgent":  "󰀦",
+            "active":  "󰮯",
+            "default": "󰧞"
         },
         "sort-by-number": true,
         "persistent-workspaces": {
             "*": [1, 2, 3, 4, 5]
-        }
+        },
+        "tooltip": true,
+        "tooltip-format": "{name}"
     },
 
     "hyprland/window": {
-        "format": "{}",
-        "max-length": 40,
-        "separate-outputs": true
+        "format": " {}",
+        "max-length": 45,
+        "separate-outputs": true,
+        "rewrite": {
+            "(.*) — Mozilla Firefox": "󰈹 $1",
+            "(.*) - VSCodium":        "󰨞 $1",
+            "(.*)kitty(.*)":          "󰄛 $1"
+        }
     },
 
+    // ── Clock ─────────────────────────────────────────────────
     "clock": {
         "timezone": "Asia/Jakarta",
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "format": " {:%H:%M}",
-        "format-alt": " {:%A, %d %B %Y}"
+        "format":     "󰥔 {:%H:%M}",
+        "format-alt": "󰃭 {:%A, %d %B %Y}"
     },
 
+    // ── Battery ───────────────────────────────────────────────
     "battery": {
         "states": {
-            "good": 90,
-            "warning": 30,
+            "good":     90,
+            "warning":  30,
             "critical": 15
         },
-        "format": "{icon} {capacity}%",
+        "format":          "{icon} {capacity}%",
         "format-charging": "󰂄 {capacity}%",
-        "format-plugged": "󰚥 {capacity}%",
-        "format-alt": "{icon} {time}",
-        "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
+        "format-plugged":  "󰚥 {capacity}%",
+        "format-alt":      "{icon} {time}",
+        "format-icons":    ["󰁺","󰁻","󰁼","󰁽","󰁾","󰁿","󰂀","󰂁","󰂂","󰁹"]
     },
 
+    // ── Network ───────────────────────────────────────────────
     "network": {
-        "format-wifi": "󰤨 {essid}",
-        "format-ethernet": "󰈀 {ifname}",
-        "format-disconnected": "󰤭 Disconnected",
-        "tooltip-format": "{ifname} via {gwaddr}",
-        "tooltip-format-wifi": "󰤨 {essid} ({signalStrength}%)",
+        "format-wifi":       "󰤨 {essid}",
+        "format-ethernet":   "󰈀 {ifname}",
+        "format-disconnected":"󰤭 offline",
+        "tooltip-format":         "{ifname} via {gwaddr}",
+        "tooltip-format-wifi":    "󰤨 {essid} · {signalStrength}% · {frequency}MHz",
+        "tooltip-format-ethernet":"󰈀 {ifname} · {ipaddr}",
         "on-click": "nm-connection-editor",
         "max-length": 20
     },
 
+    // ── Audio ─────────────────────────────────────────────────
     "pulseaudio": {
-        "format": "{icon} {volume}%",
-        "format-bluetooth": "󰂰 {volume}%",
-        "format-bluetooth-muted": "󰂲",
-        "format-muted": "󰝟",
+        "format":                "{icon} {volume}%",
+        "format-bluetooth":      "󰂰 {volume}%",
+        "format-bluetooth-muted":"󰂲",
+        "format-muted":          "󰝟",
         "format-icons": {
-            "headphone": "󰋋",
+            "headphone":  "󰋋",
             "hands-free": "󰋎",
-            "headset": "󰋎",
-            "phone": "",
-            "portable": "",
-            "car": "",
-            "default": ["󰕿", "󰖀", "󰕾"]
+            "headset":    "󰋎",
+            "phone":      "",
+            "portable":   "",
+            "car":        "",
+            "default":    ["󰕿","󰖀","󰕾"]
         },
-        "on-click": "pavucontrol"
+        "on-click": "pavucontrol",
+        "scroll-step": 2
     },
 
+    // ── Tray ──────────────────────────────────────────────────
     "tray": {
-        "spacing": 10
+        "spacing": 10,
+        "icon-size": 16
     },
 
+    // ── Power ─────────────────────────────────────────────────
     "custom/power": {
-        "format": "󰐥",
+        "format":  "⏻",
         "on-click": "wlogout",
-        "tooltip": false
+        "tooltip":  false
+    },
+
+    // ── Weather (wttr.in, 30min cache) ────────────────────────
+    "custom/weather": {
+        "exec":          "python3 ~/.config/hypr/scripts/weather.py",
+        "return-type":   "json",
+        "interval":      1800,
+        "on-click":      "xdg-open https://wttr.in",
+        "on-click-right":"python3 ~/.config/hypr/scripts/weather.py --widget",
+        "tooltip":       true
+    },
+
+    // ── CPU Temperature ───────────────────────────────────────
+    "custom/cpu-temp": {
+        "exec":        "python3 ~/.config/hypr/scripts/temp-monitor.py --waybar",
+        "return-type": "json",
+        "interval":    5,
+        "tooltip":     true
     }
 }

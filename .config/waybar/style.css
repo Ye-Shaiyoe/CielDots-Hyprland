@@ -1,127 +1,134 @@
-/* Catppuccin Mocha Color Palette */
-@define-color base   #1e1e2e;
-@define-color mantle #181825;
-@define-color crust  #11111b;
+/* ================================================================
+   Rimuru Tempest — Waybar Theme
+   Abyss navy · Slime cyan glow · Magic purple · Glassmorphism
+   ================================================================ */
 
-@define-color text     #cdd6f4;
-@define-color subtext0 #a6adc8;
-@define-color subtext1 #bac2de;
+/* ── Palette ──────────────────────────────────────────────────── */
+@define-color abyss    #0a0e1a;
+@define-color deep     #0d1420;
+@define-color storm    #111827;
+@define-color overlay  #1a2540;
+@define-color slate    #263354;
+@define-color silver   #c8d6e8;
+@define-color mist     #7a91b0;
+@define-color ghost    #4a607a;
 
-@define-color surface0 #313244;
-@define-color surface1 #45475a;
-@define-color surface2 #585b70;
+@define-color cyan     #00e5ff;
+@define-color blue     #29b6f6;
+@define-color teal     #00bcd4;
+@define-color purple   #7c4dff;
+@define-color violet   #aa80ff;
+@define-color green    #00e676;
+@define-color amber    #ffb300;
+@define-color red      #ff5252;
+@define-color pink     #f06292;
 
-@define-color overlay0 #6c7086;
-@define-color overlay1 #7f849c;
-@define-color overlay2 #9399b2;
-
-@define-color blue      #89b4fa;
-@define-color lavender  #b4befe;
-@define-color sapphire  #74c7ec;
-@define-color sky       #89dceb;
-@define-color teal      #94e2d5;
-@define-color green     #a6e3a1;
-@define-color yellow    #f9e2af;
-@define-color peach     #fab387;
-@define-color maroon    #eba0ac;
-@define-color red       #f38ba8;
-@define-color mauve     #cba6f7;
-@define-color pink      #f5c2e7;
-@define-color flamingo  #f2cdcd;
-@define-color rosewater #f5e0dc;
-
+/* ── Base ──────────────────────────────────────────────────────── */
 * {
     font-family: "JetBrainsMono Nerd Font", monospace;
-    font-size: 13px;
+    font-size: 12px;
     border: none;
     border-radius: 0;
     min-height: 0;
+    transition: all 0.25s cubic-bezier(0.0, 0.9, 0.1, 1.05);
 }
 
 window#waybar {
     background: transparent;
 }
 
+/* ── Module groups — glassy panels ──────────────────────────────
+   rgba abyss at ~75% opacity + subtle cyan border on bottom
+   Gives the "you're looking through slime" feel
+   ────────────────────────────────────────────────────────────── */
 .modules-left,
 .modules-center,
 .modules-right {
-    background: @base;
-    border-radius: 12px;
-    padding: 0 8px;
+    background: rgba(10, 14, 26, 0.72);
+    border-radius: 14px;
+    border: 1px solid rgba(0, 229, 255, 0.12);
+    padding: 0 10px;
     margin: 0 4px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(0, 229, 255, 0.06);
 }
 
-/* Workspaces */
+/* ── Workspaces ─────────────────────────────────────────────────── */
 #workspaces {
     padding: 0 4px;
 }
 
 #workspaces button {
-    padding: 4px 8px;
-    color: @subtext0;
+    padding: 4px 10px;
+    color: @ghost;
     background: transparent;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+    border-radius: 10px;
+    font-size: 14px;
 }
 
 #workspaces button:hover {
-    background: @surface0;
-    color: @text;
+    background: rgba(0, 229, 255, 0.10);
+    color: @mist;
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.2);
 }
 
 #workspaces button.active {
-    background: @mauve;
-    color: @base;
+    background: rgba(0, 229, 255, 0.18);
+    color: @cyan;
     font-weight: bold;
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.35),
+                inset 0 0 6px rgba(0, 229, 255, 0.10);
 }
 
 #workspaces button.urgent {
-    background: @red;
-    color: @base;
+    background: rgba(255, 82, 82, 0.25);
+    color: @red;
+    box-shadow: 0 0 10px rgba(255, 82, 82, 0.4);
 }
 
-/* Window title */
+/* ── Window title ───────────────────────────────────────────────── */
 #window {
-    color: @subtext1;
-    padding: 0 8px;
+    color: @mist;
+    padding: 0 10px;
+    font-style: italic;
 }
 
-/* Clock */
+/* ── Clock ──────────────────────────────────────────────────────── */
 #clock {
-    color: @blue;
+    color: @cyan;
     font-weight: bold;
-    padding: 0 12px;
+    font-size: 13px;
+    padding: 0 14px;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
 }
 
-/* Battery */
+/* ── Battery ────────────────────────────────────────────────────── */
 #battery {
     color: @green;
     padding: 0 8px;
 }
 
 #battery.warning {
-    color: @yellow;
+    color: @amber;
 }
 
 #battery.critical {
     color: @red;
-    animation-name: blink;
-    animation-duration: 0.5s;
-    animation-timing-function: linear;
+    animation-name: pulse-red;
+    animation-duration: 1s;
+    animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
     animation-direction: alternate;
 }
 
-@keyframes blink {
-    to {
-        color: @base;
-        background-color: @red;
-    }
+@keyframes pulse-red {
+    from { color: @red; text-shadow: 0 0 0 transparent; }
+    to   { color: @red; text-shadow: 0 0 10px rgba(255, 82, 82, 0.8); }
 }
 
-/* Network */
+/* ── Network ────────────────────────────────────────────────────── */
 #network {
-    color: @sapphire;
+    color: @teal;
     padding: 0 8px;
 }
 
@@ -129,17 +136,17 @@ window#waybar {
     color: @red;
 }
 
-/* Pulseaudio */
+/* ── Audio ──────────────────────────────────────────────────────── */
 #pulseaudio {
-    color: @pink;
+    color: @violet;
     padding: 0 8px;
 }
 
 #pulseaudio.muted {
-    color: @overlay0;
+    color: @ghost;
 }
 
-/* Tray */
+/* ── Tray ───────────────────────────────────────────────────────── */
 #tray {
     padding: 0 8px;
 }
@@ -150,31 +157,55 @@ window#waybar {
 
 #tray > .needs-attention {
     -gtk-icon-effect: highlight;
-    background-color: @red;
+    background-color: rgba(255, 82, 82, 0.3);
+    border-radius: 6px;
 }
 
-/* Power button */
+/* ── Power button ───────────────────────────────────────────────── */
 #custom-power {
-    color: @red;
-    font-size: 16px;
-    padding: 0 8px 0 12px;
-    margin-right: 4px;
+    color: @purple;
+    font-size: 15px;
+    padding: 0 10px 0 14px;
+    margin-right: 2px;
 }
 
 #custom-power:hover {
-    color: @base;
-    background: @red;
-    border-radius: 8px;
+    color: @abyss;
+    background: @purple;
+    border-radius: 10px;
+    box-shadow: 0 0 14px rgba(124, 77, 255, 0.6);
 }
 
-/* Tooltip */
+/* ── Custom weather module ──────────────────────────────────────── */
+#custom-weather {
+    color: @blue;
+    padding: 0 8px;
+}
+
+/* ── Custom CPU/temp modules ────────────────────────────────────── */
+#custom-cpu-temp {
+    color: @green;
+    padding: 0 8px;
+}
+
+#custom-cpu-temp.warn {
+    color: @amber;
+}
+
+#custom-cpu-temp.critical {
+    color: @red;
+    text-shadow: 0 0 8px rgba(255, 82, 82, 0.7);
+}
+
+/* ── Tooltip ────────────────────────────────────────────────────── */
 tooltip {
-    background: @mantle;
-    border: 1px solid @surface1;
-    border-radius: 8px;
-    color: @text;
+    background: rgba(10, 14, 26, 0.92);
+    border: 1px solid rgba(0, 229, 255, 0.20);
+    border-radius: 10px;
+    color: @silver;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
 }
 
 tooltip label {
-    color: @text;
+    color: @silver;
 }

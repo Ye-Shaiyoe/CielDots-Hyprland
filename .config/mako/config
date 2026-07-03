@@ -1,39 +1,50 @@
-# Mako notification daemon config
-# Catppuccin Mocha theme
+# ================================================================
+# Mako — Rimuru Tempest Theme
+# Glassmorphism notification popups
+# ================================================================
 
 # Dimensions
 width=320
 height=110
-margin=12,12,12,0
-padding=12
-border-size=2
-border-radius=10
+margin=14,14,14,0
+padding=14
+border-size=1
+border-radius=12
 
 # Behavior
 default-timeout=5000
 ignore-timeout=0
-max-visible=5
+max-visible=4
 sort=-time
 
 # Icons
 icons=true
-max-icon-size=48
+max-icon-size=40
 
-# Catppuccin Mocha Colors
-background-color=#1e1e2eee
-text-color=#cdd6f4ff
-border-color=#cba6f7ff
+# Glass abyss background + slime cyan border
+background-color=#0a0e1acc
+text-color=#c8d6e8ff
+border-color=#00e5ff44
 
 # Font
 font=JetBrainsMono Nerd Font 11
 
-# Critical notifications
+# ── Urgency rules ────────────────────────────────────────────────
+
+# Critical — purple magic aura, persistent
 [urgency=critical]
-border-color=#f38ba8ff
-background-color=#1e1e2eee
+border-color=#7c4dffcc
+background-color=#0a0e1af0
+text-color=#aa80ffff
 default-timeout=0
 
-# Low priority
+# Normal — default slime cyan accent
+[urgency=normal]
+border-color=#00e5ff44
+background-color=#0a0e1acc
+
+# Low — barely visible, ghost-like
 [urgency=low]
-border-color=#585b70ff
-text-color=#a6adc8ff
+border-color=#1a254066
+text-color=#4a607aff
+background-color=#0a0e1a99

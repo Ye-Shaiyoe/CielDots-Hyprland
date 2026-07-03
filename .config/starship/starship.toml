@@ -1,133 +1,143 @@
-# Starship Prompt - Catppuccin Mocha
-# https://starship.rs
+# ================================================================
+# Starship — Rimuru Tempest Prompt
+# Slime cyan · Magic purple · Abyss navy
+# ================================================================
 
 format = """
-[╭─](surface1) $os$username$hostname$directory$git_branch$git_status$python$nodejs$rust$golang$docker_context
-[╰─](surface1)$character"""
+[╭](overlay) $os$username$hostname$directory$git_branch$git_status$python$nodejs$rust$golang$docker_context
+[╰](overlay)$character"""
 
 add_newline = true
+palette     = "rimuru"
 
-palette = 'catppuccin_mocha'
+# ── Rimuru Tempest Palette ────────────────────────────────────
+[palettes.rimuru]
+abyss   = "#0a0e1a"
+deep    = "#0d1420"
+storm   = "#111827"
+overlay = "#1a2540"
+slate   = "#263354"
+silver  = "#c8d6e8"
+mist    = "#7a91b0"
+ghost   = "#4a607a"
+cyan    = "#00e5ff"
+blue    = "#29b6f6"
+teal    = "#00bcd4"
+purple  = "#7c4dff"
+violet  = "#aa80ff"
+green   = "#00e676"
+amber   = "#ffb300"
+red     = "#ff5252"
+pink    = "#f06292"
 
-[palettes.catppuccin_mocha]
-rosewater = "#f5e0dc"
-flamingo = "#f2cdcd"
-pink = "#f5c2e7"
-mauve = "#cba6f7"
-red = "#f38ba8"
-maroon = "#eba0ac"
-peach = "#fab387"
-yellow = "#f9e2af"
-green = "#a6e3a1"
-teal = "#94e2d5"
-sky = "#89dceb"
-sapphire = "#74c7ec"
-blue = "#89b4fa"
-lavender = "#b4befe"
-text = "#cdd6f4"
-subtext1 = "#bac2de"
-subtext0 = "#a6adc8"
-overlay2 = "#9399b2"
-overlay1 = "#7f849c"
-overlay0 = "#6c7086"
-surface2 = "#585b70"
-surface1 = "#45475a"
-surface0 = "#313244"
-base = "#1e1e2e"
-mantle = "#181825"
-crust = "#11111b"
-
+# ── OS icon ───────────────────────────────────────────────────
 [os]
 disabled = false
-style = "bold mauve"
+style    = "bold cyan"
 
 [os.symbols]
-Gentoo = " "
-Arch = " "
-Ubuntu = " "
-Debian = " "
-Fedora = " "
+Gentoo  = " "
+Arch    = " "
+Ubuntu  = " "
+Debian  = " "
+Fedora  = " "
 Windows = " "
-Macos = " "
+Macos   = " "
 
+# ── Username ──────────────────────────────────────────────────
 [username]
-style_user = "bold blue"
-style_root = "bold red"
-format = "[$user]($style) "
-disabled = false
+style_user  = "bold blue"
+style_root  = "bold red"
+format      = "[$user]($style) "
+disabled    = false
 show_always = false
 
+# ── Hostname ─────────────────────────────────────────────────
 [hostname]
 ssh_only = true
-format = "[@$hostname](bold yellow) "
+format   = "[@$hostname](bold violet) "
 
+# ── Directory — slime trail ───────────────────────────────────
 [directory]
-style = "bold lavender"
-format = "[$path]($style)[$read_only]($read_only_style) "
-truncation_length = 4
-truncate_to_repo = true
-read_only = " 󰌾"
-read_only_style = "red"
+style              = "bold cyan"
+format             = "[$path]($style)[$read_only]($read_only_style) "
+truncation_length  = 4
+truncate_to_repo   = true
+read_only          = " 󰌾"
+read_only_style    = "red"
 
 [directory.substitutions]
 "Documents" = "󰈙 "
 "Downloads" = " "
-"Music" = "󰝚 "
-"Pictures" = " "
-"Videos" = " "
-"~" = " "
+"Music"     = "󰝚 "
+"Pictures"  = " "
+"Videos"    = " "
+"~"         = "󱃔 "
 
+# ── Git branch ────────────────────────────────────────────────
 [git_branch]
 symbol = " "
-style = "bold green"
+style  = "bold green"
 format = "[$symbol$branch]($style) "
-truncation_length = 20
+truncation_length = 22
 
+# ── Git status ────────────────────────────────────────────────
 [git_status]
-style = "bold red"
-format = "([$all_status$ahead_behind]($style) )"
+style      = "bold red"
+format     = "([$all_status$ahead_behind]($style) )"
 conflicted = "⚡"
-ahead = "⇡${count}"
-behind = "⇣${count}"
-diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-untracked = "?"
-stashed = "󰏗"
-modified = "!"
-staged = "+"
-renamed = "»"
-deleted = "✘"
+ahead      = "⇡${count}"
+behind     = "⇣${count}"
+diverged   = "⇕⇡${ahead_count}⇣${behind_count}"
+untracked  = "?"
+stashed    = "󰏗"
+modified   = "!"
+staged     = "+"
+renamed    = "»"
+deleted    = "✘"
 
+# ── Languages ─────────────────────────────────────────────────
 [python]
 symbol = " "
-style = "bold yellow"
+style  = "bold amber"
 format = "[$symbol$version]($style) "
 
 [nodejs]
 symbol = " "
-style = "bold green"
+style  = "bold green"
 format = "[$symbol$version]($style) "
 
 [rust]
 symbol = " "
-style = "bold peach"
+style  = "bold violet"
 format = "[$symbol$version]($style) "
 
 [golang]
 symbol = " "
-style = "bold sky"
+style  = "bold teal"
 format = "[$symbol$version]($style) "
 
 [docker_context]
 symbol = " "
-style = "bold blue"
+style  = "bold blue"
 format = "[$symbol$context]($style) "
 
+# ── Prompt character — slime orb ─────────────────────────────
+# ❯ in cyan when ok, red when error
 [character]
-success_symbol = "[❯](bold green)"
-error_symbol = "[❯](bold red)"
-vimcmd_symbol = "[❮](bold green)"
+success_symbol = "[❯](bold cyan)"
+error_symbol   = "[❯](bold red)"
+vimcmd_symbol  = "[❮](bold violet)"
 
+# ── Command duration ──────────────────────────────────────────
 [cmd_duration]
-style = "bold yellow"
-format = "[ $duration]($style) "
-min_time = 2000
+style       = "bold amber"
+format      = "[ $duration]($style) "
+min_time    = 2000
+
+# ── Time ─────────────────────────────────────────────────────
+[time]
+disabled      = false
+style         = "bold ghost"
+format        = "[$time]($style) "
+time_format   = "%H:%M"
