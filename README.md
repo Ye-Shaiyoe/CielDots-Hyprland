@@ -1,135 +1,404 @@
-# nime-dots
+<div align="center">
 
-> Arch Linux · Hyprland · Catppuccin Mocha
+# ✦ CielDots — Hyprland
 
-![Hyprland](https://img.shields.io/badge/WM-Hyprland-cba6f7?style=flat-square&logo=linux)
-![Theme](https://img.shields.io/badge/Theme-Catppuccin%20Mocha-1e1e2e?style=flat-square)
-![Font](https://img.shields.io/badge/Font-JetBrainsMono%20NF-89b4fa?style=flat-square)
+**A personal Hyprland rice for Gentoo Linux**
 
-## Stack
+*Clean · Fast · Catppuccin Mocha*
 
-| Role | App |
-|------|-----|
-| Window Manager | Hyprland |
-| Bar | Waybar |
-| Terminal | Kitty |
-| Shell | Zsh + Starship |
-| Launcher | Wofi |
-| Notifications | Mako |
-| Wallpaper | SWWW |
-| Lock Screen | Hyprlock |
-| File Manager | Thunar |
-| Color Scheme | Catppuccin Mocha |
-| Font | JetBrainsMono Nerd Font |
+![Hyprland](https://img.shields.io/badge/WM-Hyprland-cba6f7?style=flat-square&logo=linux&logoColor=white)
+![Gentoo](https://img.shields.io/badge/OS-Gentoo_Linux-54487a?style=flat-square&logo=gentoo&logoColor=white)
+![Theme](https://img.shields.io/badge/Theme-Catppuccin_Mocha-1e1e2e?style=flat-square&logoColor=white)
+![Font](https://img.shields.io/badge/Font-JetBrainsMono_NF-89b4fa?style=flat-square&logoColor=white)
+![Shell](https://img.shields.io/badge/Shell-Zsh_+_Starship-a6e3a1?style=flat-square&logoColor=white)
 
-## Install
+</div>
+
+---
+
+## What is this?
+
+CielDots is a fully configured Hyprland desktop environment built specifically for **Gentoo Linux**. Everything is themed with [Catppuccin Mocha](https://catppuccin.com/) — from the terminal and bar down to the GTK apps and cursor.
+
+The installer (`install.sh`) handles everything in one shot: Portage overlays, USE flags, ~amd64 keywords, package installation, config symlinking, and service setup.
+
+---
+
+## Software Stack
+
+| Role | App | Notes |
+|------|-----|-------|
+| Window Manager | [Hyprland](https://hyprland.org) | Dynamic tiling Wayland compositor |
+| Status Bar | [Waybar](https://github.com/Alexays/Waybar) | Top bar with system info |
+| Terminal | [Kitty](https://sw.kovidgoyal.net/kitty/) | GPU-accelerated terminal |
+| Shell | Zsh + [Starship](https://starship.rs) | Fast prompt with git info |
+| App Launcher | [Wofi](https://hg.sr.ht/~scoopta/wofi) | Wayland-native launcher |
+| Notifications | [Mako](https://github.com/emersion/mako) | Lightweight notification daemon |
+| Wallpaper | [swww](https://github.com/LGFae/swww) | Smooth animated transitions |
+| Lock Screen | [Hyprlock](https://github.com/hyprwm/hyprlock) | Native Hyprland lock screen |
+| Idle Daemon | [Hypridle](https://github.com/hyprwm/hypridle) | Auto-dim, lock, and sleep |
+| File Manager | [Thunar](https://docs.xfce.org/xfce/thunar/start) | Lightweight file manager |
+| Audio | PipeWire + WirePlumber | Modern audio stack |
+| Color Scheme | [Catppuccin Mocha](https://catppuccin.com/) | Consistent across all apps |
+| Font | JetBrainsMono Nerd Font | Coding font with icons |
+
+---
+
+## Quick Install
+
+> **Requirements:** Gentoo Linux with `emerge`, `eselect`, `git`, and `curl` available on your system.
 
 ```bash
-git clone https://github.com/yourusername/nime-dots ~/.dotfiles
+# 1. Clone the dotfiles
+git clone https://github.com/yourusername/CielDots-Hyprland ~/.dotfiles
+
+# 2. Enter the directory
 cd ~/.dotfiles
+
+# 3. Make the installer executable
 chmod +x install.sh
+
+# 4. Run it
 ./install.sh
 ```
 
-> **Requires:** `paru` or `yay` AUR helper
+The installer will walk you through everything automatically. No manual Portage setup required.
+
+### What the installer does
+
+1. **Validates** your system — checks for Gentoo, available disk space (≥10GB), and required tools
+2. **Sets up overlays** — adds the [GURU](https://wiki.gentoo.org/wiki/Project:GURU) community overlay via `eselect repository`
+3. **Writes USE flags** — creates `/etc/portage/package.use/cieldots` with all necessary flags (wayland, vulkan, drm, gles2, tray, etc.)
+4. **Unmasks packages** — creates `/etc/portage/package.accept_keywords/cieldots` for all `~amd64` packages in the Hyprland ecosystem
+5. **Installs packages** — runs `emerge` for each package, skips failures and reports them at the end
+6. **Symlinks configs** — links everything from this repo into `~/.config/` (with automatic backup of existing files)
+7. **Sets up Zsh** — configures `ZDOTDIR` and sets zsh as default shell
+8. **Enables services** — works with both OpenRC and systemd
+
+### If something goes wrong
+
+The installer creates a snapshot of every file before touching it. To restore your previous state:
+
+```bash
+./install.sh --rollback
+```
+
+Backups are also saved to `~/.config-backup-cieldots/<timestamp>/` for manual recovery.
+
+---
+
+## Directory Structure
+
+```
+CielDots-Hyprland/
+├── install.sh                  ← One-shot Gentoo installer
+├── README.md
+│
+├── .config/
+│   ├── hypr/
+│   │   ├── hyprland.conf       ← Main Hyprland config (keybinds, rules, look & feel)
+│   │   ├── hyprlock.conf       ← Lock screen layout and styling
+│   │   └── hypridle.conf       ← Idle timeouts (dim → lock → sleep)
+│   │
+│   ├── waybar/
+│   │   ├── config.jsonc        ← Bar modules (workspaces, clock, battery, network)
+│   │   └── style.css           ← Catppuccin Mocha styling for the bar
+│   │
+│   ├── kitty/
+│   │   └── kitty.conf          ← Terminal font, colors, opacity
+│   │
+│   ├── mako/
+│   │   └── config              ← Notification dimensions, colors, timeout rules
+│   │
+│   ├── wofi/
+│   │   ├── config              ← Launcher behavior settings
+│   │   └── style.css           ← Launcher appearance (Catppuccin Mocha)
+│   │
+│   ├── zsh/
+│   │   └── .zshrc              ← Shell aliases, plugins, env vars
+│   │
+│   ├── starship/
+│   │   └── starship.toml       ← Prompt layout with Catppuccin palette
+│   │
+│   ├── gtk-3.0/
+│   │   └── settings.ini        ← GTK3 theme, icons, cursor, font
+│   │
+│   └── gtk-4.0/
+│       └── settings.ini        ← GTK4 theme settings
+│
+└── scripts/
+    ├── startup.sh              ← Hyprland autostart sequence
+    ├── wallpaper.sh            ← Smart wallpaper switcher (random, next, prev, slideshow)
+    ├── gaming-mode.sh          ← Toggle gaming optimizations on/off
+    └── screenshot.sh           ← Screenshot tool (area, full, window, monitor)
+```
+
+---
 
 ## Keybindings
 
+All keybinds use `Super` (Windows key) as the modifier.
+
+### Applications
+
 | Key | Action |
 |-----|--------|
-| `Super + Return` | Terminal |
-| `Super + Space` | App Launcher |
-| `Super + E` | File Manager |
-| `Super + B` | Browser |
-| `Super + Q` | Close Window |
-| `Super + F` | Fullscreen |
-| `Super + V` | Toggle Float |
-| `Super + L` | Lock Screen |
-| `Super + R` | Resize Mode |
-| `Super + 1-0` | Switch Workspace |
-| `Super + Shift + 1-0` | Move to Workspace |
-| `Print` | Screenshot (area) |
-| `Super + Print` | Screenshot (full) |
-| `Super + H/J/K/L` | Move Focus |
+| `Super + Return` | Open terminal (Kitty) |
+| `Super + Space` | Open app launcher (Wofi) |
+| `Super + E` | Open file manager (Thunar) |
+| `Super + B` | Open browser (Firefox) |
 
-## Structure
+### Window Management
 
-```
-~/.config/
-├── hypr/
-│   ├── hyprland.conf   # Main config
-│   └── hyprlock.conf   # Lock screen
-├── waybar/
-│   ├── config.jsonc    # Bar modules
-│   └── style.css       # Catppuccin styling
-├── kitty/
-│   └── kitty.conf      # Terminal + colors
-├── mako/
-│   └── config          # Notifications
-├── wofi/
-│   ├── config
-│   └── style.css       # Launcher styling
-├── zsh/
-│   └── .zshrc          # Shell config
-├── starship/
-│   └── starship.toml   # Prompt
-└── gtk-3.0/ gtk-4.0/
-    └── settings.ini    # GTK theming
-```
+| Key | Action |
+|-----|--------|
+| `Super + Q` | Close active window |
+| `Super + F` | Toggle fullscreen |
+| `Super + V` | Toggle floating |
+| `Super + P` | Toggle pseudo-tile |
+| `Super + R` | Enter resize mode (use arrow keys, Esc to exit) |
+| `Super + H/J/K/L` | Move focus left/down/up/right |
+| `Super + Arrow keys` | Move focus with arrow keys |
+| `Super + LMB drag` | Move window |
+| `Super + RMB drag` | Resize window |
+
+### Workspaces
+
+| Key | Action |
+|-----|--------|
+| `Super + 1–0` | Switch to workspace 1–10 |
+| `Super + Shift + 1–0` | Move active window to workspace 1–10 |
+| `Super + scroll up/down` | Cycle through workspaces |
+
+Workspaces have names: `web`, `code`, `files`, `media`, `misc`
+
+### Screenshots
+
+| Key | Action |
+|-----|--------|
+| `Print` | Capture selected area → save + copy to clipboard |
+| `Super + Print` | Capture fullscreen → save + copy |
+| `Shift + Print` | Capture active window → save + copy |
+| `Ctrl + Print` | Capture area + open in Swappy for annotation |
+
+### Wallpaper & Gaming
+
+| Key | Action |
+|-----|--------|
+| `Super + Shift + W` | Set random wallpaper |
+| `Super + Ctrl + W` | Next wallpaper in list |
+| `Super + Shift + G` | Toggle gaming mode on/off |
+
+### System
+
+| Key | Action |
+|-----|--------|
+| `Super + L` | Lock screen (Hyprlock) |
+| `Super + Shift + Q` | Exit Hyprland |
+
+### Volume & Brightness
+
+| Key | Action |
+|-----|--------|
+| `XF86AudioRaiseVolume` | Volume up 5% |
+| `XF86AudioLowerVolume` | Volume down 5% |
+| `XF86AudioMute` | Toggle mute |
+| `XF86MonBrightnessUp` | Brightness up 10% |
+| `XF86MonBrightnessDown` | Brightness down 10% |
+
+---
 
 ## Scripts
 
-Scripts berada di `~/.config/hypr/scripts/` (symlink dari `scripts/`).
+All scripts live in `scripts/` and are symlinked to `~/.config/hypr/scripts/` and `~/.local/bin/` during install.
 
-### wallpaper.sh
-```bash
-wallpaper.sh                  # random dari ~/Pictures/Wallpapers
-wallpaper.sh /path/img.jpg    # set spesifik
-wallpaper.sh --next           # next wallpaper
-wallpaper.sh --prev           # previous wallpaper
-wallpaper.sh --slideshow      # slideshow (default interval 5 menit)
-wallpaper.sh --current        # lihat wallpaper sekarang
+### wallpaper
 
-# Env vars
-WALLPAPER_DIR=~/Pictures/Wallpapers
-WALLPAPER_TRANSITION=wipe      # fade|wipe|slide|grow|center|random
-WALLPAPER_INTERVAL=300         # detik untuk slideshow
-```
-
-### gaming-mode.sh
-```bash
-gaming-mode.sh          # toggle on/off
-gaming-mode.sh on       # aktifkan
-gaming-mode.sh off      # nonaktifkan
-gaming-mode.sh status   # cek status
-```
-Efek: matiin Waybar, gaps=0, animasi off, CPU governor → performance, DnD notif.
-
-### screenshot.sh
-```bash
-screenshot.sh area      # pilih area (default)
-screenshot.sh full      # fullscreen
-screenshot.sh window    # window aktif
-screenshot.sh monitor   # monitor aktif
-screenshot.sh area --edit   # capture + buka di swappy
-```
-
-### Keybindings
-| Key | Action |
-|-----|--------|
-| `Print` | Screenshot area |
-| `Super + Print` | Screenshot full |
-| `Shift + Print` | Screenshot window |
-| `Ctrl + Print` | Screenshot area + edit |
-| `Super + Shift + W` | Random wallpaper |
-| `Super + Ctrl + W` | Next wallpaper |
-| `Super + Shift + G` | Toggle gaming mode |
-
-## Wallpaper
-
-Taruh wallpaper di `~/Pictures/Wallpapers/`. Startup script otomatis random.
+Smart wallpaper switcher powered by [swww](https://github.com/LGFae/swww).
 
 ```bash
-# Ganti wallpaper manual
-~/.config/hypr/scripts/wallpaper.sh ~/Pictures/Wallpapers/kamu.jpg
+wallpaper                        # Pick a random wallpaper from ~/Pictures/Wallpapers
+wallpaper /path/to/image.jpg     # Set a specific wallpaper
+wallpaper --next                 # Next wallpaper (alphabetical order)
+wallpaper --prev                 # Previous wallpaper
+wallpaper --slideshow            # Auto-rotate every N seconds
+wallpaper --current              # Print the currently active wallpaper path
+wallpaper --list                 # List all available wallpapers
 ```
+
+**Environment variables you can set:**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `WALLPAPER_DIR` | `~/Pictures/Wallpapers` | Where to look for images |
+| `WALLPAPER_TRANSITION` | `wipe` | Transition type: `fade`, `wipe`, `slide`, `grow`, `center`, `random` |
+| `WALLPAPER_TRANSITION_DURATION` | `1.5` | Transition duration in seconds |
+| `WALLPAPER_INTERVAL` | `300` | Slideshow interval in seconds |
+| `WALLPAPER_FPS` | `60` | Transition frame rate |
+
+Supported formats: `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`
+
+### gaming-mode
+
+Toggles performance optimizations for gaming — disables visual effects and sets CPU to performance mode.
+
+```bash
+gaming-mode          # Toggle on/off
+gaming-mode on       # Activate gaming mode
+gaming-mode off      # Deactivate gaming mode
+gaming-mode status   # Show current state
+```
+
+**What gaming mode does when enabled:**
+- Kills Waybar (frees memory and CPU)
+- Sets all Hyprland gaps to 0, border size to 0
+- Disables blur, shadows, and animations
+- Disables VFR for consistent frame timing
+- Sets CPU governor to `performance` (via `cpupower`)
+- Starts GameMode daemon (if installed)
+- Puts Mako into Do Not Disturb mode
+
+**When disabled,** everything is restored: Waybar restarts, animations come back, CPU returns to `schedutil`.
+
+### screenshot
+
+Screenshot utility using `grim` + `slurp`, with optional annotation via `swappy`.
+
+```bash
+screenshot area             # Draw a selection box and capture
+screenshot full             # Capture all monitors
+screenshot window           # Capture the active window
+screenshot monitor          # Capture the focused monitor
+screenshot area --edit      # Capture area, then open in Swappy
+```
+
+Every screenshot is:
+- Saved to `~/Pictures/Screenshots/screenshot_YYYY-MM-DD_HH-MM-SS.png`
+- Automatically copied to clipboard
+- Shown as a desktop notification with the filename
+
+### startup
+
+Called automatically by Hyprland on login (`exec-once = bash ~/.config/hypr/scripts/startup.sh`). You don't need to run this manually.
+
+It starts: `swww-daemon` → wallpaper → Waybar → Mako → Polkit agent → nm-applet → blueman → XDG portals → Hypridle.
+
+---
+
+## Portage Setup (Gentoo)
+
+The installer handles all of this automatically. This section is for reference if you want to understand what's being set up.
+
+### Overlays used
+
+```bash
+# GURU — community overlay with Hyprland ecosystem packages
+sudo eselect repository enable guru
+sudo emaint sync -r guru
+```
+
+### Key packages
+
+```bash
+# Core Hyprland stack
+sudo emerge gui-wm/hyprland gui-apps/hyprlock gui-apps/hypridle
+
+# Bar, launcher, notifications
+sudo emerge gui-apps/waybar gui-apps/wofi x11-misc/mako
+
+# Wallpaper and screenshot
+sudo emerge gui-apps/swww media-gfx/grim gui-apps/slurp gui-apps/wl-clipboard
+
+# Terminal and shell
+sudo emerge x11-terms/kitty app-shells/zsh app-shells/starship
+```
+
+### After install, update your world
+
+```bash
+sudo emerge --ask --update --deep --newuse @world
+```
+
+### Useful Portage aliases (added to .zshrc automatically)
+
+```bash
+pkgi <package>   # emerge --ask (install)
+pkgr             # emerge --ask --depclean (remove orphans)
+pkgs <term>      # emerge --search
+pkgu             # emerge --update --deep --newuse @world (full upgrade)
+pkgc             # depclean + revdep-rebuild
+pkgl             # qlist -Iv (list installed packages)
+pkgsync          # emaint sync --auto
+```
+
+---
+
+## Catppuccin Mocha Color Reference
+
+These colors are used consistently across all configs.
+
+| Name | Hex | Role |
+|------|-----|------|
+| Base | `#1e1e2e` | Background |
+| Mantle | `#181825` | Darker background |
+| Surface0 | `#313244` | Input fields, hover |
+| Text | `#cdd6f4` | Primary text |
+| Subtext | `#a6adc8` | Dimmed text |
+| Mauve | `#cba6f7` | Accent color (borders, active) |
+| Blue | `#89b4fa` | Info, clock, links |
+| Green | `#a6e3a1` | OK, battery, success |
+| Yellow | `#f9e2af` | Warning |
+| Red | `#f38ba8` | Error, critical, close |
+| Peach | `#fab387` | Misc accent |
+
+---
+
+## Theming Details
+
+- **GTK theme:** Catppuccin-Mocha-Standard-Mauve-Dark (installed from source during setup)
+- **Icon theme:** Papirus-Dark
+- **Cursor:** Catppuccin-Mocha-Dark-Cursors (size 24)
+- **Hyprland border:** Gradient from Mauve `#cba6f7` → Blue `#89b4fa` at 45°
+- **Window rounding:** 10px
+- **Blur:** 8px, 2 passes, vibrancy 0.17
+- **Active window opacity:** 1.0 / Inactive: 0.95
+- **Terminal background opacity:** 0.95
+
+---
+
+## Troubleshooting
+
+**Hyprland won't start**
+Make sure `gui-libs/xdg-desktop-portal-hyprland` is installed and `XDG_CURRENT_DESKTOP=Hyprland` is set.
+
+**No audio**
+PipeWire needs WirePlumber as the session manager. Check with:
+```bash
+systemctl --user status pipewire wireplumber
+# or for OpenRC:
+rc-service pipewire status
+```
+
+**Waybar not showing**
+Run `waybar` from a terminal to see error output. Usually a missing module or syntax error in `config.jsonc`.
+
+**swww transitions are choppy**
+Lower `WALLPAPER_FPS` from 60 to 30, or change `WALLPAPER_TRANSITION` to `fade`.
+
+**Fonts look wrong / icons missing**
+Ensure `media-fonts/nerd-fonts` is installed and your font cache is refreshed:
+```bash
+fc-cache -fv
+```
+
+**Gaming mode: cpupower fails**
+You need `sudo` access for CPU governor changes. Add this to `/etc/sudoers.d/cpupower`:
+```
+your_username ALL=(ALL) NOPASSWD: /usr/bin/cpupower
+```
+
+---
+
+## License
+
+MIT — do whatever you want with it. A star is always appreciated. ✦
