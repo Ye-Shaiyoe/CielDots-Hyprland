@@ -42,6 +42,7 @@ disabled = false
 style = "bold mauve"
 
 [os.symbols]
+Gentoo = " "
 Arch = " "
 Ubuntu = " "
 Debian = " "
