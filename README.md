@@ -30,8 +30,9 @@ The installer (`install.sh`) handles everything in one shot: Portage overlays, U
 |------|-----|-------|
 | Window Manager | [Hyprland](https://hyprland.org) | Dynamic tiling Wayland compositor |
 | Status Bar | [Waybar](https://github.com/Alexays/Waybar) | Top bar with system info |
-| Terminal | [Kitty](https://sw.kovidgoyal.net/kitty/) | GPU-accelerated terminal |
-| Shell | Zsh + [Starship](https://starship.rs) | Fast prompt with git info |
+| Terminal | [Kitty](https://sw.kovidgoyal.net/kitty/) | GPU-accelerated, animated cursor trail, glass opacity |
+| Shell | Zsh + [Starship](https://starship.rs) | Fast prompt, Rimuru palette, fastfetch on open |
+| Fetch | [Fastfetch](https://github.com/fastfetch-cli/fastfetch) | JaKooLit-style tree layout, Rimuru ASCII logo |
 | App Launcher | [Wofi](https://hg.sr.ht/~scoopta/wofi) | Wayland-native launcher |
 | Notifications | [Mako](https://github.com/emersion/mako) | Lightweight notification daemon |
 | Wallpaper | [swww](https://github.com/LGFae/swww) | Smooth animated transitions |
@@ -96,41 +97,47 @@ CielDots-Hyprland/
 │
 ├── .config/
 │   ├── hypr/
-│   │   ├── hyprland.conf       ← Main Hyprland config (keybinds, rules, look & feel)
-│   │   ├── hyprlock.conf       ← Lock screen layout and styling
-│   │   └── hypridle.conf       ← Idle timeouts (dim → lock → sleep)
+│   │   ├── hyprland.conf       ← Main config (Rimuru theme, slime animations)
+│   │   ├── hyprlock.conf       ← Lock screen (frosted glass, cyan clock)
+│   │   └── hypridle.conf       ← Idle timeouts
 │   │
 │   ├── waybar/
-│   │   ├── config.jsonc        ← Bar modules (workspaces, clock, battery, network)
-│   │   └── style.css           ← Catppuccin Mocha styling for the bar
+│   │   ├── config.jsonc        ← Bar modules
+│   │   └── style.css           ← Rimuru Tempest glassmorphism styling
 │   │
 │   ├── kitty/
-│   │   └── kitty.conf          ← Terminal font, colors, opacity
+│   │   ├── kitty.conf          ← Terminal (cursor trail, opacity, font)
+│   │   └── themes/
+│   │       └── rimuru.conf     ← Rimuru color palette (swappable)
+│   │
+│   ├── fastfetch/
+│   │   ├── config.jsonc        ← JaKooLit-style tree layout
+│   │   └── rimuru.txt          ← Custom ASCII logo
 │   │
 │   ├── mako/
-│   │   └── config              ← Notification dimensions, colors, timeout rules
+│   │   └── config              ← Notifications (glass panels)
 │   │
 │   ├── wofi/
-│   │   ├── config              ← Launcher behavior settings
-│   │   └── style.css           ← Launcher appearance (Catppuccin Mocha)
+│   │   ├── config
+│   │   └── style.css           ← Launcher (glassmorphism)
 │   │
 │   ├── zsh/
-│   │   └── .zshrc              ← Shell aliases, plugins, env vars
+│   │   └── .zshrc              ← Shell (no plugin manager, fzf, fastfetch)
 │   │
 │   ├── starship/
-│   │   └── starship.toml       ← Prompt layout with Catppuccin palette
+│   │   └── starship.toml       ← Prompt (Rimuru palette)
 │   │
 │   ├── gtk-3.0/
-│   │   └── settings.ini        ← GTK3 theme, icons, cursor, font
+│   │   └── settings.ini
 │   │
 │   └── gtk-4.0/
-│       └── settings.ini        ← GTK4 theme settings
+│       └── settings.ini
 │
 └── scripts/
-    ├── startup.sh              ← Hyprland autostart sequence
-    ├── wallpaper.sh            ← Smart wallpaper switcher (random, next, prev, slideshow)
-    ├── gaming-mode.sh          ← Toggle gaming optimizations on/off
-    └── screenshot.sh           ← Screenshot tool (area, full, window, monitor)
+    ├── startup.sh
+    ├── wallpaper.sh
+    ├── gaming-mode.sh
+    └── screenshot.sh
 ```
 
 ---
@@ -285,6 +292,70 @@ It starts: `swww-daemon` → wallpaper → Waybar → Mako → Polkit agent → 
 
 ---
 
+## Terminal Setup
+
+### Kitty — JaKooLit style
+
+The kitty config is split into two files — base config and theme:
+
+```
+~/.config/kitty/
+├── kitty.conf          ← base: font, cursor, opacity, keybinds
+└── themes/
+    └── rimuru.conf     ← Rimuru Tempest color palette (swap to change theme)
+```
+
+Key features matching JaKooLit's style:
+- `cursor_trail 1` — animated cursor trail that follows movement
+- `background_opacity 0.88` — glass transparency
+- `dynamic_background_opacity yes` — opacity adjusts on focus
+- Font: JetBrainsMono Nerd Font Mono 14pt
+- Tab bar: powerline round style
+
+To swap themes, just change the `include` line in `kitty.conf`:
+```
+include ./themes/rimuru.conf
+```
+
+### Fastfetch — JaKooLit tree layout
+
+System info display on every new terminal. Layout uses the same tree-style structure JaKooLit uses (`│ ├` / `│ └` branches per section).
+
+```
+ 󰣨 SYSTEM   Gentoo Linux
+│ ├󰒔         6.x.x-gentoo
+│ ├󰏖         1337 (emerge)
+│ ├󰅐         2h 34m
+│ └          zsh 5.x.x
+
+  DE/WM     Hyprland
+│ ├󰉼         Adwaita-dark
+│ └          Kitty
+...
+```
+
+Logo: custom Rimuru ASCII art at `~/.config/fastfetch/rimuru.txt`
+
+To regenerate logo or disable it:
+```bash
+# disable logo
+fastfetch --logo none
+
+# use built-in gentoo logo instead
+fastfetch --logo gentoo
+```
+
+### ZSH features
+
+- **No plugin manager** — plugins loaded directly from system paths (Gentoo package paths)
+- **Plugins:** zsh-autosuggestions, zsh-syntax-highlighting, zsh-history-substring-search, fzf integration
+- **History substring search:** type partial command → Up/Down arrow to search
+- **FZF:** `Ctrl+T` file picker, `Alt+C` directory jump, `Ctrl+R` history — all themed Rimuru colors
+- **`fcd`** — fuzzy cd with eza tree preview
+- `fastfetch` auto-runs on new terminal (skips in tmux/SSH)
+
+---
+
 ## Portage Setup (Gentoo)
 
 The installer handles all of this automatically. This section is for reference if you want to understand what's being set up.
@@ -333,36 +404,42 @@ pkgsync          # emaint sync --auto
 
 ---
 
-## Catppuccin Mocha Color Reference
-
-These colors are used consistently across all configs.
+## Color Palette — Rimuru Tempest
 
 | Name | Hex | Role |
 |------|-----|------|
-| Base | `#1e1e2e` | Background |
-| Mantle | `#181825` | Darker background |
-| Surface0 | `#313244` | Input fields, hover |
-| Text | `#cdd6f4` | Primary text |
-| Subtext | `#a6adc8` | Dimmed text |
-| Mauve | `#cba6f7` | Accent color (borders, active) |
-| Blue | `#89b4fa` | Info, clock, links |
-| Green | `#a6e3a1` | OK, battery, success |
-| Yellow | `#f9e2af` | Warning |
-| Red | `#f38ba8` | Error, critical, close |
-| Peach | `#fab387` | Misc accent |
+| Abyss | `#0a0e1a` | Background (deepest) |
+| Deep | `#0d1420` | Background secondary |
+| Storm | `#111827` | Surface |
+| Overlay | `#1a2540` | Hover / inactive panels |
+| Slate | `#263354` | Inactive borders |
+| Silver | `#c8d6e8` | Primary text |
+| Mist | `#7a91b0` | Dimmed text / subtext |
+| Ghost | `#4a607a` | Very dim / placeholders |
+| Cyan | `#00e5ff` | **Primary accent — slime!** |
+| Blue | `#29b6f6` | Secondary / info |
+| Teal | `#00bcd4` | Tertiary / network |
+| Purple | `#7c4dff` | **Magic aura — highlight** |
+| Violet | `#aa80ff` | Soft purple / audio |
+| Green | `#00e676` | Success / battery / OK |
+| Amber | `#ffb300` | Warning |
+| Red | `#ff5252` | Error / critical |
 
 ---
 
 ## Theming Details
 
-- **GTK theme:** Catppuccin-Mocha-Standard-Mauve-Dark (installed from source during setup)
+- **Color scheme:** Rimuru Tempest — Abyss navy `#0a0e1a` base, slime cyan `#00e5ff` accent, magic purple `#7c4dff` highlight
+- **GTK theme:** Adwaita-dark
 - **Icon theme:** Papirus-Dark
-- **Cursor:** Catppuccin-Mocha-Dark-Cursors (size 24)
-- **Hyprland border:** Gradient from Mauve `#cba6f7` → Blue `#89b4fa` at 45°
-- **Window rounding:** 10px
-- **Blur:** 8px, 2 passes, vibrancy 0.17
-- **Active window opacity:** 1.0 / Inactive: 0.95
-- **Terminal background opacity:** 0.95
+- **Cursor:** Bibata-Modern-Ice (size 24)
+- **Hyprland border:** Gradient cyan `#00e5ff` → purple `#7c4dff` at 45°, animated loop
+- **Window rounding:** 12px
+- **Active window opacity:** 0.92 / Inactive: 0.82
+- **Blur:** size 10, 3 passes, vibrancy 0.25 — full glassmorphism
+- **Shadows:** cyan glow `rgba(00e5ff, 0.13)` on active windows
+- **Animations:** "slime physics" bezier curves — stretchy and bouncy
+- **Workspace names:** Rimuru's skills (「Predator」「Great Sage」「Storm」「Gluttony」「Raphael」)
 
 ---
 
