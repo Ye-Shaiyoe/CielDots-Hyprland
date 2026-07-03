@@ -227,7 +227,7 @@ alias fcd='cd "$(fd --type d | fzf --preview "eza --tree --level=2 --icons {} 2>
 # ── Functions ────────────────────────────────────────────────
 
 # mkdir + cd
-mkcd() { mkdir -p "$1" && cd "$1" }
+mkcd() { mkdir -p "$1" && cd "$1"; }
 
 # Extract any archive
 extract() {
@@ -247,7 +247,7 @@ extract() {
             *.Z)        uncompress "$1" ;;
             *.7z)       7z x "$1"       ;;
             *.zst)      zstd -d "$1"    ;;
-            *)          echo "'$1' — unknown archive format" ;;
+            *)          echo "'$1' - unknown archive format" ;;
         esac
     else
         echo "'$1' is not a file"
@@ -255,22 +255,22 @@ extract() {
 }
 
 # Quick backup
-bak() { cp -v "$1" "$1.bak" }
+bak() { cp -v "$1" "$1.bak"; }
 
 # Find process
-psg() { ps aux | grep -v grep | grep -i "$1" }
+psg() { ps aux | grep -v grep | grep -i "$1"; }
 
 # Create temp dir and cd into it
-tmp() { cd "$(mktemp -d)" }
+tmp() { cd "$(mktemp -d)"; }
 
 # Pretty print PATH
-path() { echo "$PATH" | tr ':' '\n' | nl }
+path() { echo "$PATH" | tr ':' '\n' | nl; }
 
 # Quick HTTP server
-serve() { python3 -m http.server "${1:-8000}" }
+serve() { python3 -m http.server "${1:-8000}"; }
 
 # Gentoo: check USE flags for a package
-puse() { equery uses "$1" }
+puse() { equery uses "$1"; }
 
 # Wallpaper shortcuts
 alias wallpaper='bash ~/.config/hypr/scripts/wallpaper.sh'
