@@ -42,6 +42,18 @@ log "=== Hyprland Startup ==="
 log "Session: $XDG_SESSION_TYPE"
 log "Display: $WAYLAND_DISPLAY"
 
+# ---- Startup splash ----
+if [[ -f "$HOME/.config/hypr/scripts/startup-splash.py" ]]; then
+    kitty --class=splash \
+          --override background_opacity=0.0 \
+          --override hide_window_decorations=yes \
+          --override remember_window_size=no \
+          --override initial_window_width=700 \
+          --override initial_window_height=420 \
+          -- python3 "$HOME/.config/hypr/scripts/startup-splash.py" &
+    sleep 2.5
+fi
+
 # ---- D-Bus & Portal ----
 log "Setting up D-Bus environment..."
 dbus-update-activation-environment --systemd \
@@ -91,6 +103,14 @@ fi
 # ---- System tray apps ----
 launch nm-applet nm-applet --indicator
 launch blueman-applet blueman-applet 2>/dev/null
+
+# ---- Clipboard manager ----
+# cliphist stores clipboard history, used by launcher.sh clipboard
+if command -v wl-paste &>/dev/null && command -v cliphist &>/dev/null; then
+    wl-paste --watch cliphist store &
+    disown
+    log "cliphist daemon started"
+fi
 
 # ---- XDG portal ----
 # Restart portal untuk memastikan screen sharing jalan
