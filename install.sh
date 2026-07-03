@@ -1,184 +1,714 @@
 #!/bin/bash
 # ============================================================
-# Dotfiles Install Script - Arch Linux + Hyprland
-# Catppuccin Mocha | JetBrainsMono Nerd Font
+# CielDots — Gentoo Linux Hyprland Dotfiles Installer
+# Theme: Catppuccin Mocha | Font: JetBrainsMono Nerd Font
 # ============================================================
 
-set -e
+set -euo pipefail
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-MAUVE='\033[0;35m'
+R='\033[38;2;243;139;168m'   # red     #f38ba8
+G='\033[38;2;166;227;161m'   # green   #a6e3a1
+Y='\033[38;2;249;226;175m'   # yellow  #f9e2af
+B='\033[38;2;137;180;250m'   # blue    #89b4fa
+M='\033[38;2;203;166;247m'   # mauve   #cba6f7
+S='\033[38;2;166;173;200m'   # subtext #a6adc8
+T='\033[38;2;205;214;244m'   # text    #cdd6f4
 NC='\033[0m'
 
-info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
-success() { echo -e "${GREEN}[OK]${NC} $1"; }
-warn()    { echo -e "${YELLOW}[WARN]${NC} $1"; }
-error()   { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
+LOG_DIR="$HOME/.cache"
+LOG_FILE="$LOG_DIR/cieldots-install.log"
+mkdir -p "$LOG_DIR"
+
+_log()  { local lvl="$1"; shift; echo "[$(date '+%H:%M:%S')] [$lvl] $*" >> "$LOG_FILE"; }
+info()  { echo -e "${B}[INFO]${NC}  $*"; _log INFO  "$*"; }
+ok()    { echo -e "${G}[ OK ]${NC}  $*"; _log OK    "$*"; }
+warn()  { echo -e "${Y}[WARN]${NC}  $*"; _log WARN  "$*"; }
+err()   { echo -e "${R}[ERR ]${NC}  $*"; _log ERROR "$*"; }
+die()   { err "$*"; exit 1; }
+step()  { echo -e "\n${M}══${NC} ${T}$*${NC}"; _log STEP "$*"; }
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BACKUP_DIR="$HOME/.config-backup-cieldots/$(date '+%Y%m%d_%H%M%S')"
+SNAPSHOT_FILE="$LOG_DIR/cieldots-install-snapshot.json"
+FAILED_PKGS=()
+INSTALLED_PKGS=()
+TOTAL_STEPS=9
+CURRENT_STEP=0
 
-echo -e "${MAUVE}"
-echo "  ███╗   ██╗██╗███╗   ███╗███████╗    ██████╗  ██████╗ ████████╗███████╗"
-echo "  ████╗  ██║██║████╗ ████║██╔════╝    ██╔══██╗██╔═══██╗╚══██╔══╝██╔════╝"
-echo "  ██╔██╗ ██║██║██╔████╔██║█████╗      ██║  ██║██║   ██║   ██║   ███████╗"
-echo "  ██║╚██╗██║██║██║╚██╔╝██║██╔══╝      ██║  ██║██║   ██║   ██║   ╚════██║"
-echo "  ██║ ╚████║██║██║ ╚═╝ ██║███████╗    ██████╔╝╚██████╔╝   ██║   ███████║"
-echo "  ╚═╝  ╚═══╝╚═╝╚═╝     ╚═╝╚══════╝    ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝"
-echo -e "${NC}"
-echo "  Arch Linux · Hyprland · Catppuccin Mocha"
-echo ""
+progress() {
+    CURRENT_STEP=$(( CURRENT_STEP + 1 ))
+    local pct=$(( CURRENT_STEP * 100 / TOTAL_STEPS ))
+    local filled=$(( pct / 5 ))
+    local empty=$(( 20 - filled ))
+    local bar
+    bar="${M}$(printf '█%.0s' $(seq 1 $filled))${S}$(printf '░%.0s' $(seq 1 $empty))${NC}"
+    printf "\r  [%s] ${T}%3d%%${NC} %s\n" "$bar" "$pct" "$1"
+}
 
-# ---- 1. Install packages ----
-info "Installing packages via paru..."
+print_banner() {
+    echo -e "${M}"
+    cat << 'EOF'
+   ██████╗██╗███████╗██╗     ██████╗  ██████╗ ████████╗███████╗
+  ██╔════╝██║██╔════╝██║     ██╔══██╗██╔═══██╗╚══██╔══╝██╔════╝
+  ██║     ██║█████╗  ██║     ██║  ██║██║   ██║   ██║   ███████╗
+  ██║     ██║██╔══╝  ██║     ██║  ██║██║   ██║   ██║   ╚════██║
+  ╚██████╗██║███████╗███████╗██████╔╝╚██████╔╝   ██║   ███████║
+   ╚═════╝╚═╝╚══════╝╚══════╝╚═════╝  ╚═════╝    ╚═╝   ╚══════╝
+EOF
+    echo -e "${NC}"
+    echo -e "  ${S}Gentoo Linux · Hyprland · Catppuccin Mocha${NC}"
+    echo -e "  ${S}Log: ${T}$LOG_FILE${NC}"
+    echo ""
+}
 
-PKGS=(
-    # Core Hyprland
-    hyprland hyprlock hypridle hyprpicker
-    # Bars & launchers
-    waybar wofi
-    # Terminal
-    kitty zsh starship
-    # Notification
-    mako
-    # Wallpaper
-    swww
-    # File manager
-    thunar thunar-archive-plugin gvfs
-    # Fonts
-    ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji
-    # Screenshot
-    grimblast-git grim slurp
-    # Audio
-    pipewire wireplumber pipewire-pulse pavucontrol
-    # Bluetooth
-    bluez bluez-utils blueman
-    # Network
-    networkmanager network-manager-applet nm-connection-editor
-    # Brightness
-    brightnessctl
-    # GTK Theme
-    catppuccin-gtk-theme-mocha papirus-icon-theme
-    # Cursor
-    catppuccin-cursors-mocha
-    # Misc
-    polkit-gnome xdg-desktop-portal-hyprland xdg-user-dirs
-    qt5ct qt6ct
-    # Zsh plugins
-    zsh-autosuggestions zsh-syntax-highlighting
-    # Nice CLI tools
-    eza bat ripgrep fd fzf
-    # Logout
-    wlogout
+check_gentoo() {
+    [[ -f /etc/gentoo-release ]] || die "This installer requires Gentoo Linux (missing /etc/gentoo-release)"
+    info "Detected: $(cat /etc/gentoo-release)"
+}
+
+check_root() {
+    if [[ $EUID -eq 0 ]]; then
+        warn "Running as root is discouraged!"
+        read -rp "Continue anyway? [y/N] " choice
+        [[ "${choice,,}" == "y" ]] || die "Aborted by user"
+    fi
+}
+
+check_deps() {
+    local missing=()
+    for cmd in emerge eselect git curl; do
+        command -v "$cmd" &>/dev/null || missing+=("$cmd")
+    done
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        err "Missing required commands: ${missing[*]}"
+        die "Install missing tools: emerge --ask ${missing[*]}"
+    fi
+    ok "Prerequisites satisfied"
+}
+
+check_disk() {
+    local avail_gb
+    avail_gb=$(df --output=avail -BG / | tail -n1 | tr -d 'G ')
+    if [[ $avail_gb -lt 10 ]]; then
+        warn "Only ${avail_gb}GB available on /, recommended ≥10GB"
+        read -rp "Continue anyway? [y/N] " choice
+        [[ "${choice,,}" == "y" ]] || die "Aborted due to low disk space"
+    fi
+}
+
+declare -a SNAPSHOT_ENTRIES=()
+
+snapshot_file() {
+    local dst="$1"
+    local bak="${BACKUP_DIR}${dst}"
+    if [[ -e "$dst" && ! -L "$dst" ]]; then
+        mkdir -p "$(dirname "$bak")"
+        cp -a "$dst" "$bak"
+        SNAPSHOT_ENTRIES+=("{\"path\":\"$dst\",\"backup\":\"$bak\"}")
+    fi
+}
+
+write_snapshot() {
+    local json="["
+    local first=true
+    for entry in "${SNAPSHOT_ENTRIES[@]}"; do
+        $first && first=false || json+=","
+        json+="$entry"
+    done
+    json+="]"
+    echo "$json" > "$SNAPSHOT_FILE"
+}
+
+rollback() {
+    warn "Rolling back changes..."
+    [[ -f "$SNAPSHOT_FILE" ]] || { warn "No snapshot found, cannot rollback"; return; }
+    # Use python for JSON parsing if available, else basic grep/sed
+    if command -v python3 &>/dev/null; then
+        python3 - "$SNAPSHOT_FILE" << 'PYEOF'
+import json, shutil, sys
+with open(sys.argv[1]) as f:
+    entries = json.load(f)
+for e in entries:
+    try:
+        shutil.copy2(e["backup"], e["path"])
+        print(f"  restored: {e['path']}")
+    except Exception as ex:
+        print(f"  FAILED:   {e['path']} — {ex}")
+PYEOF
+    fi
+    ok "Rollback complete"
+}
+
+trap_exit() {
+    local code=$?
+    if [[ $code -ne 0 ]]; then
+        err "Installer exited with code $code — running rollback"
+        rollback
+    fi
+}
+trap trap_exit EXIT
+trap 'echo ""; warn "Interrupted — rolling back..."; rollback; exit 130' INT TERM
+
+setup_use_flags() {
+    step "Configuring Portage USE flags"
+    local use_file="/etc/portage/package.use/cieldots"
+    local use_content
+    use_content=$(cat << 'USEEOF'
+# CielDots USE flags — auto-generated by install.sh
+# DO NOT EDIT MANUALLY — edit install.sh and re-run
+
+# Hyprland stack
+gui-wm/hyprland         aquamarine drm gles2
+gui-libs/aquamarine     drm gles2
+dev-libs/wayland        scanner
+
+# Mesa — Wayland + Vulkan (required for Hyprland compositing)
+media-libs/mesa         wayland vulkan classic xa
+
+# Waybar
+gui-apps/waybar         experimental tray network pipewire upower
+
+# PipeWire audio stack
+media-video/pipewire    alsa bluetooth dbus gstreamer jack pipewire-alsa screencast sound-server
+
+# Kitty terminal
+x11-terms/kitty         wayland
+
+# GTK / theming
+x11-libs/gtk+:3         wayland
+x11-libs/gtk+:4         wayland wayland-only
+
+# Screenshot tools
+media-gfx/grim          -X
+gui-apps/slurp          -X
+
+# XDG portals
+sys-apps/xdg-desktop-portal   geoclue screencast
+
+# swww wallpaper
+gui-apps/swww           wayland
+
+# Notification (mako)
+x11-misc/mako           dbus wayland
+
+# General Wayland support
+dev-libs/weston         wayland
+
+# Qt (for apps that need it)
+dev-qt/qtbase:6         wayland
+
+# Fonts
+media-fonts/noto        extra cjk
+USEEOF
 )
+    if [[ -f "$use_file" ]]; then
+        snapshot_file "$use_file"
+    fi
+    echo "$use_content" | sudo tee "$use_file" > /dev/null
+    ok "USE flags written to $use_file"
+}
 
-if command -v paru &>/dev/null; then
-    paru -S --needed --noconfirm "${PKGS[@]}"
-elif command -v yay &>/dev/null; then
-    yay -S --needed --noconfirm "${PKGS[@]}"
-else
-    warn "AUR helper not found. Installing packages via pacman (some may be missing)..."
-    sudo pacman -S --needed --noconfirm "${PKGS[@]}" 2>/dev/null || true
-fi
+# ── Accept keywords (unmask ~amd64) ──────────────────────────
+setup_keywords() {
+    local kw_file="/etc/portage/package.accept_keywords/cieldots"
+    local kw_content
+    kw_content=$(cat << 'KWEOF'
+# CielDots ~amd64 keywords — auto-generated by install.sh
 
-success "Packages installed"
+# Hyprland and its full stack (mostly ~amd64 on Gentoo)
+gui-wm/hyprland             ~amd64
+gui-libs/aquamarine         ~amd64
+gui-libs/hyprlang           ~amd64
+gui-libs/hyprutils          ~amd64
+gui-libs/hyprwayland-scanner ~amd64
+gui-libs/xdg-desktop-portal-hyprland ~amd64
+gui-apps/hyprlock           ~amd64
+gui-apps/hypridle           ~amd64
+gui-apps/hyprpicker         ~amd64
 
-# ---- 2. Create config directories ----
-info "Creating config directories..."
-mkdir -p ~/.config/{hypr,waybar,kitty,mako,wofi,zsh,starship,gtk-3.0,gtk-4.0}
-mkdir -p ~/.local/share/fonts
-mkdir -p ~/Pictures/Wallpapers
-success "Directories created"
+# swww wallpaper daemon
+gui-apps/swww               ~amd64
 
-# ---- 3. Symlink configs ----
-info "Symlinking config files..."
+# Waybar
+gui-apps/waybar             ~amd64
 
-symlink() {
-    local src="$DOTFILES_DIR/$1"
-    local dst="$HOME/$1"
+# Wofi launcher
+gui-apps/wofi               ~amd64
+
+# Mako notification daemon
+x11-misc/mako               ~amd64
+
+# Screenshot
+media-gfx/grim              ~amd64
+gui-apps/slurp              ~amd64
+gui-apps/swappy             ~amd64
+gui-apps/wl-clipboard       ~amd64
+gui-apps/cliphist           ~amd64
+
+# Fonts
+media-fonts/nerd-fonts      ~amd64
+
+# Misc tools from GURU
+app-shells/starship         ~amd64
+app-misc/eza                ~amd64
+KWEOF
+)
+    if [[ -f "$kw_file" ]]; then
+        snapshot_file "$kw_file"
+    fi
+    echo "$kw_content" | sudo tee "$kw_file" > /dev/null
+    ok "Keywords written to $kw_file"
+}
+
+setup_overlays() {
+    step "Setting up Portage overlays (GURU + wayland-desktop)"
+
+    # Ensure eselect-repository is available
+    if ! eselect repository list &>/dev/null 2>&1; then
+        info "Installing app-eselect/eselect-repository..."
+        sudo emerge --ask=n --quiet app-eselect/eselect-repository || \
+            die "Failed to install eselect-repository"
+    fi
+
+    # GURU overlay — community packages (hyprland, swww, starship, etc.)
+    if ! eselect repository list | grep -q "^guru "; then
+        info "Adding GURU overlay..."
+        sudo eselect repository enable guru
+    else
+        info "GURU overlay already present"
+    fi
+
+    # wayland-desktop overlay — sometimes has newer Hyprland ecosystem packages
+    if ! eselect repository list | grep -q "wayland-desktop"; then
+        info "Adding wayland-desktop overlay..."
+        sudo eselect repository add wayland-desktop git \
+            https://github.com/bsd-ac/wayland-desktop.git 2>/dev/null || \
+            warn "wayland-desktop overlay not added (optional, continuing)"
+    fi
+
+    info "Syncing overlays..."
+    sudo emaint sync -r guru 2>&1 | tail -5
+    ok "Overlays ready"
+}
+
+emerge_pkg() {
+    local pkg="$1"
+    info "  Installing $pkg..."
+    if sudo emerge --ask=n --quiet --noreplace "$pkg" >> "$LOG_FILE" 2>&1; then
+        INSTALLED_PKGS+=("$pkg")
+        return 0
+    else
+        warn "  FAILED: $pkg (see $LOG_FILE)"
+        FAILED_PKGS+=("$pkg")
+        return 1
+    fi
+}
+
+install_packages() {
+    step "Installing packages via emerge"
+    info "This may take a while — Gentoo compiles from source."
+    echo ""
+
+    info "── Core Hyprland"
+    emerge_pkg "gui-wm/hyprland"
+    emerge_pkg "gui-apps/hyprlock"
+    emerge_pkg "gui-apps/hypridle"
+    emerge_pkg "gui-apps/hyprpicker"
+    emerge_pkg "gui-libs/xdg-desktop-portal-hyprland"
+
+    info "── Wayland essentials"
+    emerge_pkg "sys-apps/xdg-desktop-portal"
+    emerge_pkg "sys-apps/xdg-user-dirs"
+    emerge_pkg "dev-libs/wayland"
+    emerge_pkg "dev-libs/wayland-protocols"
+
+    info "── Bar & launcher"
+    emerge_pkg "gui-apps/waybar"
+    emerge_pkg "gui-apps/wofi"
+
+    info "── Terminal & shell"
+    emerge_pkg "x11-terms/kitty"
+    emerge_pkg "app-shells/zsh"
+    emerge_pkg "app-shells/starship"
+    emerge_pkg "app-shells/zsh-syntax-highlighting"
+    emerge_pkg "app-shells/zsh-autosuggestions"
+
+    info "── Notifications"
+    emerge_pkg "x11-misc/mako"
+
+    info "── Wallpaper"
+    emerge_pkg "gui-apps/swww"
+
+    info "── Screenshot tools"
+    emerge_pkg "media-gfx/grim"
+    emerge_pkg "gui-apps/slurp"
+    emerge_pkg "gui-apps/swappy"
+    emerge_pkg "gui-apps/wl-clipboard"
+    emerge_pkg "gui-apps/cliphist"
+
+    info "── Audio"
+    emerge_pkg "media-video/pipewire"
+    emerge_pkg "media-sound/wireplumber"
+    emerge_pkg "app-misc/pavucontrol"
+
+    info "── Bluetooth"
+    emerge_pkg "net-wireless/bluez"
+    emerge_pkg "net-wireless/blueman"
+
+    info "── Network"
+    emerge_pkg "net-misc/networkmanager"
+    emerge_pkg "gnome-extra/nm-applet"
+    emerge_pkg "net-libs/libnm"
+
+    info "── Brightness"
+    emerge_pkg "sys-power/brightnessctl"
+
+    info "── File manager"
+    emerge_pkg "xfce-base/thunar"
+    emerge_pkg "xfce-extra/thunar-archive-plugin"
+    emerge_pkg "gnome-base/gvfs"
+
+    # ── Fonts ─────────────────────────────────────────────────
+    info "── Fonts"
+    emerge_pkg "media-fonts/nerd-fonts"
+    emerge_pkg "media-fonts/noto"
+    emerge_pkg "media-fonts/noto-emoji"
+
+    # ── GTK theming ───────────────────────────────────────────
+    info "── GTK theming"
+    emerge_pkg "x11-themes/papirus-icon-theme"
+    # Catppuccin GTK is installed manually from source below
+
+    # ── Qt config ─────────────────────────────────────────────
+    info "── Qt config"
+    emerge_pkg "x11-misc/qt5ct"
+    emerge_pkg "x11-misc/qt6ct"
+
+    # ── Auth agent ────────────────────────────────────────────
+    info "── Polkit agent"
+    emerge_pkg "gnome-extra/polkit-gnome"
+
+    # ── Cursor ────────────────────────────────────────────────
+    info "── Cursor theme"
+    emerge_pkg "x11-themes/catppuccin-cursors"
+
+    # ── Misc CLI tools ────────────────────────────────────────
+    info "── CLI tools"
+    emerge_pkg "sys-apps/eza"
+    emerge_pkg "sys-apps/bat"
+    emerge_pkg "sys-apps/ripgrep"
+    emerge_pkg "sys-apps/fd"
+    emerge_pkg "app-shells/fzf"
+    emerge_pkg "app-misc/jq"
+    emerge_pkg "net-misc/curl"
+    emerge_pkg "dev-python/requests"
+    emerge_pkg "app-misc/lm-sensors"
+
+    # ── CPU power management ──────────────────────────────────
+    info "── CPU management"
+    emerge_pkg "sys-power/cpupower"
+}
+
+# ── Catppuccin GTK theme from source ─────────────────────────
+install_catppuccin_gtk() {
+    local theme_dir="$HOME/.local/share/themes"
+    local repo_url="https://github.com/catppuccin/gtk"
+    local tmp_dir
+    tmp_dir="$(mktemp -d)"
+
+    if [[ -d "$theme_dir/Catppuccin-Mocha-Standard-Mauve-Dark" ]]; then
+        info "Catppuccin GTK theme already installed, skipping"
+        return
+    fi
+
+    info "Installing Catppuccin GTK theme from source..."
+    mkdir -p "$theme_dir"
+
+    if command -v python3 &>/dev/null && python3 -c "import pygobject" 2>/dev/null; then
+        git clone --depth=1 "$repo_url" "$tmp_dir/catppuccin-gtk" 2>/dev/null && \
+            python3 "$tmp_dir/catppuccin-gtk/install.py" \
+                mocha --accent mauve --dest "$theme_dir" --name Catppuccin-Mocha && \
+            ok "Catppuccin GTK theme installed" || \
+            warn "Catppuccin GTK install failed — you may install manually from $repo_url"
+    else
+        # Fallback: grab the pre-built release tarball
+        local rel_url="https://github.com/catppuccin/gtk/releases/latest/download/Catppuccin-Mocha-Standard-Mauve-Dark.zip"
+        curl -sL "$rel_url" -o "$tmp_dir/catppuccin-gtk.zip" && \
+            unzip -q "$tmp_dir/catppuccin-gtk.zip" -d "$theme_dir" && \
+            ok "Catppuccin GTK theme installed (pre-built)" || \
+            warn "Catppuccin GTK install failed — install manually from $repo_url"
+    fi
+    rm -rf "$tmp_dir"
+}
+
+# ── Symlinks ─────────────────────────────────────────────────
+do_symlink() {
+    local rel="$1"
+    local src="$DOTFILES_DIR/$rel"
+    local dst="$HOME/$rel"
     local dir
     dir="$(dirname "$dst")"
 
-    mkdir -p "$dir"
+    [[ -f "$src" || -d "$src" ]] || { warn "Source missing: $src — skipping"; return; }
 
-    if [ -e "$dst" ] && [ ! -L "$dst" ]; then
-        warn "Backing up existing $dst to $dst.bak"
-        mv "$dst" "$dst.bak"
+    mkdir -p "$dir"
+    snapshot_file "$dst"
+
+    if [[ -e "$dst" && ! -L "$dst" ]]; then
+        warn "Backing up existing $(basename "$dst") → $BACKUP_DIR"
+        local bak="${BACKUP_DIR}${dst}"
+        mkdir -p "$(dirname "$bak")"
+        mv "$dst" "$bak"
     fi
 
     ln -sfn "$src" "$dst"
-    success "Linked $1"
+    ok "  $rel"
 }
 
-symlink ".config/hypr/hyprland.conf"
-symlink ".config/hypr/hyprlock.conf"
-symlink ".config/waybar/config.jsonc"
-symlink ".config/waybar/style.css"
-symlink ".config/kitty/kitty.conf"
-symlink ".config/mako/config"
-symlink ".config/wofi/config"
-symlink ".config/wofi/style.css"
-symlink ".config/zsh/.zshrc"
-symlink ".config/starship/starship.toml"
-symlink ".config/gtk-3.0/settings.ini"
-symlink ".config/gtk-4.0/settings.ini"
-symlink ".config/hypr/hypridle.conf"
+install_symlinks() {
+    step "Symlinking config files"
 
-# ---- Scripts ----
-info "Installing scripts..."
-mkdir -p ~/.config/hypr/scripts
-for script in "$DOTFILES_DIR/scripts/"*.sh; do
-    name="$(basename "$script")"
-    ln -sfn "$script" "$HOME/.config/hypr/scripts/$name"
-    chmod +x "$script"
-    success "Linked scripts/$name"
-done
+    do_symlink ".config/hypr/hyprland.conf"
+    do_symlink ".config/hypr/hyprlock.conf"
+    do_symlink ".config/hypr/hypridle.conf"
+    do_symlink ".config/waybar/config.jsonc"
+    do_symlink ".config/waybar/style.css"
+    do_symlink ".config/kitty/kitty.conf"
+    do_symlink ".config/mako/config"
+    do_symlink ".config/wofi/config"
+    do_symlink ".config/wofi/style.css"
+    do_symlink ".config/zsh/.zshrc"
+    do_symlink ".config/starship/starship.toml"
+    do_symlink ".config/gtk-3.0/settings.ini"
+    do_symlink ".config/gtk-4.0/settings.ini"
 
-# ---- 4. Set default shell to zsh ----
-if [ "$SHELL" != "$(which zsh)" ]; then
-    info "Changing default shell to zsh..."
-    chsh -s "$(which zsh)"
-    success "Shell changed to zsh"
+    # Scripts
+    info "Linking scripts..."
+    mkdir -p "$HOME/.config/hypr/scripts"
+    for script in "$DOTFILES_DIR/scripts/"*.sh; do
+        [[ -f "$script" ]] || continue
+        local name
+        name="$(basename "$script")"
+        ln -sfn "$script" "$HOME/.config/hypr/scripts/$name"
+        chmod +x "$script"
+        ok "  scripts/$name"
+    done
+
+    # Also link scripts to ~/.local/bin for PATH access
+    mkdir -p "$HOME/.local/bin"
+    for script in "$DOTFILES_DIR/scripts/"*.sh; do
+        [[ -f "$script" ]] || continue
+        local name
+        name="$(basename "$script" .sh)"
+        ln -sfn "$script" "$HOME/.local/bin/$name"
+    done
+
+    write_snapshot
+}
+
+# ── Update .zshrc aliases for Gentoo ─────────────────────────
+patch_zshrc_for_gentoo() {
+    local zshrc="$DOTFILES_DIR/.config/zsh/.zshrc"
+    # If already patched, skip
+    grep -q "emerge" "$zshrc" 2>/dev/null && return
+
+    cat >> "$zshrc" << 'ZSHEOF'
+
+# ── Gentoo / Portage aliases (auto-added by install.sh) ──
+alias pkgi='sudo emerge --ask'
+alias pkgr='sudo emerge --ask --depclean'
+alias pkgs='emerge --search'
+alias pkgu='sudo emerge --ask --update --deep --newuse @world'
+alias pkgc='sudo emerge --ask --depclean && sudo revdep-rebuild'
+alias pkgl='qlist -Iv'
+alias emerge='sudo emerge'
+ZSHEOF
+
+    ok "Gentoo aliases added to .zshrc"
+}
+
+# ── Shell setup ──────────────────────────────────────────────
+setup_shell() {
+    step "Configuring shell"
+
+    if [[ "$SHELL" != "$(command -v zsh)" ]]; then
+        info "Changing default shell to zsh..."
+        chsh -s "$(command -v zsh)"
+        ok "Default shell set to zsh"
+    else
+        info "zsh is already the default shell"
+    fi
+
+    # ZDOTDIR for zsh
+    local zshenv="/etc/zsh/zshenv"
+    if [[ ! -f "$zshenv" ]] || ! grep -q "ZDOTDIR" "$zshenv" 2>/dev/null; then
+        info "Setting ZDOTDIR=$HOME/.config/zsh in $zshenv"
+        echo 'export ZDOTDIR="$HOME/.config/zsh"' | sudo tee -a "$zshenv" > /dev/null
+        ok "ZDOTDIR configured"
+    else
+        info "ZDOTDIR already set in $zshenv"
+    fi
+}
+
+# ── System services ──────────────────────────────────────────
+enable_services() {
+    step "Enabling system services"
+
+    local services=(
+        "bluetooth"
+        "NetworkManager"
+        "dbus"
+    )
+
+    for svc in "${services[@]}"; do
+        if command -v rc-update &>/dev/null; then
+            # OpenRC (default on Gentoo)
+            sudo rc-update add "$svc" default 2>/dev/null && \
+                ok "  OpenRC: $svc enabled" || \
+                warn "  OpenRC: $svc not found (skipping)"
+        elif command -v systemctl &>/dev/null; then
+            # systemd (Gentoo systemd profile)
+            sudo systemctl enable --now "${svc}.service" 2>/dev/null && \
+                ok "  systemd: $svc enabled" || \
+                warn "  systemd: $svc not found (skipping)"
+        fi
+    done
+
+    # lm_sensors auto-detect
+    if command -v sensors-detect &>/dev/null; then
+        info "Running sensors-detect (non-interactive)..."
+        sudo sensors-detect --auto >> "$LOG_FILE" 2>&1 || \
+            warn "sensors-detect encountered issues — run manually if needed"
+    fi
+}
+
+# ── XDG dirs & wallpaper dir ─────────────────────────────────
+setup_dirs() {
+    step "Creating required directories"
+    mkdir -p "$HOME/Pictures/Wallpapers"
+    mkdir -p "$HOME/Pictures/Screenshots"
+    mkdir -p "$HOME/.local/bin"
+    mkdir -p "$HOME/.local/share/themes"
+    mkdir -p "$HOME/.local/share/icons"
+    mkdir -p "$HOME/.config/hypr/scripts"
+    xdg-user-dirs-update 2>/dev/null || true
+    ok "Directories ready"
+}
+
+# ── Hyprland display manager entry ───────────────────────────
+setup_hyprland_entry() {
+    local entry_dir="/usr/share/wayland-sessions"
+    local entry_file="$entry_dir/hyprland.desktop"
+    if [[ ! -f "$entry_file" ]]; then
+        info "Creating Hyprland session entry..."
+        sudo mkdir -p "$entry_dir"
+        sudo tee "$entry_file" > /dev/null << 'DEOF'
+[Desktop Entry]
+Name=Hyprland
+Comment=An intelligent dynamic tiling Wayland compositor
+Exec=Hyprland
+Type=Application
+DesktopNames=Hyprland
+DEOF
+        ok "Hyprland session entry created"
+    fi
+}
+
+# ── Summary ──────────────────────────────────────────────────
+print_summary() {
+    echo ""
+    echo -e "${M}╔══════════════════════════════════════════════════╗${NC}"
+    echo -e "${M}║        CielDots Installation Complete! 🎉        ║${NC}"
+    echo -e "${M}╚══════════════════════════════════════════════════╝${NC}"
+    echo ""
+
+    echo -e "  ${G}Installed packages:${NC} ${#INSTALLED_PKGS[@]}"
+    if [[ ${#FAILED_PKGS[@]} -gt 0 ]]; then
+        echo -e "  ${R}Failed packages:${NC}   ${#FAILED_PKGS[@]}"
+        for pkg in "${FAILED_PKGS[@]}"; do
+            echo -e "    ${R}✗${NC} $pkg"
+        done
+        echo -e "  ${Y}Tip:${NC} Run ${T}sudo emerge --ask ${FAILED_PKGS[*]}${NC} manually"
+    fi
+
+    echo ""
+    echo -e "  ${B}Log file:${NC}  ${T}$LOG_FILE${NC}"
+    echo -e "  ${B}Backup:${NC}    ${T}$BACKUP_DIR${NC}"
+    echo -e "  ${B}Rollback:${NC}  ${T}$0 --rollback${NC}"
+    echo ""
+    echo -e "  ${M}Next steps:${NC}"
+    echo -e "  ${S}1.${NC} Add wallpapers to ${T}~/Pictures/Wallpapers/${NC}"
+    echo -e "  ${S}2.${NC} Log out and select ${T}Hyprland${NC} in your display manager"
+    echo -e "  ${S}3.${NC} Press ${T}Super + Return${NC} to open Kitty"
+    echo -e "  ${S}4.${NC} Press ${T}Super + Space${NC} to open Wofi launcher"
+    echo -e "  ${S}5.${NC} Press ${T}Super + Shift + G${NC} to toggle gaming mode"
+    echo -e "  ${S}6.${NC} Check ${T}~/.config/hypr/scripts/${NC} for all scripts"
+    echo ""
+    echo -e "  ${M}Keybindings:${NC}"
+    echo -e "  ${S}Super + Return${NC}     → Terminal (Kitty)"
+    echo -e "  ${S}Super + Space${NC}      → App Launcher (Wofi)"
+    echo -e "  ${S}Super + E${NC}          → File Manager (Thunar)"
+    echo -e "  ${S}Super + L${NC}          → Lock screen (Hyprlock)"
+    echo -e "  ${S}Super + Q${NC}          → Close window"
+    echo -e "  ${S}Super + Shift + W${NC}  → Random wallpaper"
+    echo -e "  ${S}Super + Ctrl + W${NC}   → Next wallpaper"
+    echo -e "  ${S}Super + Shift + G${NC}  → Toggle gaming mode"
+    echo -e "  ${S}Print${NC}              → Screenshot (area)"
+    echo -e "  ${S}Super + Print${NC}      → Screenshot (fullscreen)"
+    echo ""
+}
+
+# ── Rollback mode ─────────────────────────────────────────────
+if [[ "${1:-}" == "--rollback" ]]; then
+    rollback
+    exit 0
 fi
 
-# ---- 5. Set ZDOTDIR ----
-info "Setting ZDOTDIR for zsh..."
-if ! grep -q "ZDOTDIR" /etc/zsh/zshenv 2>/dev/null; then
-    echo 'export ZDOTDIR="$HOME/.config/zsh"' | sudo tee -a /etc/zsh/zshenv
-fi
-success "ZDOTDIR configured"
+# ── Main entry point ─────────────────────────────────────────
+main() {
+    print_banner
+    echo -e "  ${T}Installing CielDots Hyprland dotfiles for Gentoo Linux...${NC}"
+    echo -e "  ${S}Started: $(date '+%A, %d %B %Y %H:%M:%S')${NC}"
+    echo ""
 
-# ---- 6. Enable services ----
-info "Enabling system services..."
-sudo systemctl enable --now bluetooth.service 2>/dev/null && success "Bluetooth enabled" || warn "Bluetooth service not found"
-sudo systemctl enable --now NetworkManager.service 2>/dev/null && success "NetworkManager enabled" || warn "NetworkManager not found"
+    # Disable the EXIT trap during normal flow — only fires on error
+    trap - EXIT
 
-# ---- 7. Setup XDG user dirs ----
-xdg-user-dirs-update
-success "XDG user dirs updated"
+    progress "Checking system requirements"
+    check_gentoo
+    check_root
+    check_deps
+    check_disk
 
-# ---- Done ----
-echo ""
-echo -e "${MAUVE}╔═══════════════════════════════════════╗${NC}"
-echo -e "${MAUVE}║      Installation Complete! 🎉        ║${NC}"
-echo -e "${MAUVE}╚═══════════════════════════════════════╝${NC}"
-echo ""
-echo -e "  ${GREEN}Next steps:${NC}"
-echo -e "  1. Add a wallpaper to ${YELLOW}~/.config/hypr/wallpaper.jpg${NC}"
-echo -e "     or copy one to ${YELLOW}~/Pictures/Wallpapers/${NC}"
-echo -e "  2. Log out and select ${YELLOW}Hyprland${NC} in your display manager"
-echo -e "  3. Press ${YELLOW}Super + Return${NC} to open Kitty terminal"
-echo -e "  4. Press ${YELLOW}Super + Space${NC} to open Wofi launcher"
-echo ""
-echo -e "  ${BLUE}Keybindings:${NC}"
-echo -e "  Super + Return    → Terminal (Kitty)"
-echo -e "  Super + Space     → App Launcher (Wofi)"
-echo -e "  Super + E         → File Manager (Thunar)"
-echo -e "  Super + Q         → Close window"
-echo -e "  Super + L         → Lock screen (Hyprlock)"
-echo -e "  Super + 1-5       → Switch workspace"
-echo -e "  Super + Shift+1-5 → Move window to workspace"
-echo -e "  Print             → Screenshot (area)"
-echo ""
+    progress "Setting up Portage overlays"
+    setup_overlays
+
+    progress "Configuring USE flags & keywords"
+    setup_use_flags
+    setup_keywords
+
+    progress "Installing packages via emerge"
+    install_packages
+
+    progress "Installing Catppuccin GTK theme"
+    install_catppuccin_gtk
+
+    progress "Creating directories"
+    setup_dirs
+
+    progress "Symlinking config files"
+    install_symlinks
+
+    progress "Configuring shell (zsh)"
+    patch_zshrc_for_gentoo
+    setup_shell
+
+    progress "Enabling system services"
+    enable_services
+    setup_hyprland_entry
+
+    progress "Done!"
+    print_summary
+}
+
+main "$@"
