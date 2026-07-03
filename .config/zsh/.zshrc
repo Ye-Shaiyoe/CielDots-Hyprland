@@ -88,13 +88,15 @@ alias gp='git push'
 alias gl='git log --oneline --graph --all'
 alias gd='git diff'
 
-# Package manager (Arch/paru)
-alias paru='paru --skipreview'
-alias pkgi='paru -S'
-alias pkgr='paru -Rns'
-alias pkgs='paru -Ss'
-alias pkgu='paru -Syu'
-alias pkgl='paru -Q'
+# Package manager (Gentoo/Portage)
+alias pkgi='sudo emerge --ask'
+alias pkgr='sudo emerge --ask --depclean'
+alias pkgs='emerge --search'
+alias pkgu='sudo emerge --ask --update --deep --newuse @world'
+alias pkgc='sudo emerge --ask --depclean && sudo revdep-rebuild'
+alias pkgl='qlist -Iv'
+alias pkgsync='sudo emaint sync --auto'
+alias pkginfo='emerge --info'
 
 # Hyprland specific
 alias hyprconf='nvim ~/.config/hypr/hyprland.conf'
