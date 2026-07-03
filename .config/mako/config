@@ -1,0 +1,39 @@
+# Mako notification daemon config
+# Catppuccin Mocha theme
+
+# Dimensions
+width=320
+height=110
+margin=12,12,12,0
+padding=12
+border-size=2
+border-radius=10
+
+# Behavior
+default-timeout=5000
+ignore-timeout=0
+max-visible=5
+sort=-time
+
+# Icons
+icons=true
+max-icon-size=48
+
+# Catppuccin Mocha Colors
+background-color=#1e1e2eee
+text-color=#cdd6f4ff
+border-color=#cba6f7ff
+
+# Font
+font=JetBrainsMono Nerd Font 11
+
+# Critical notifications
+[urgency=critical]
+border-color=#f38ba8ff
+background-color=#1e1e2eee
+default-timeout=0
+
+# Low priority
+[urgency=low]
+border-color=#585b70ff
+text-color=#a6adc8ff
