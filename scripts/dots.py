@@ -42,6 +42,8 @@ SYMLINK_MAP = {
     ".config/gtk-4.0/settings.ini":       ".config/gtk-4.0/settings.ini",
     ".config/fastfetch/config.jsonc":     ".config/fastfetch/config.jsonc",
     ".config/fastfetch/rimuru.txt":       ".config/fastfetch/rimuru.txt",
+    ".config/waybar/dynamic-colors.css":  ".config/waybar/dynamic-colors.css",
+    ".config/kitty/themes/dynamic.conf":  ".config/kitty/themes/dynamic.conf",
 }
 
 # Scripts symlinked to ~/.config/hypr/scripts/ and ~/.local/bin/
@@ -316,7 +318,6 @@ def cmd_list(args):
         print(f"  {c(C_CYAN, b.name)}  {c(C_MIST, f'{size} KB')}  {c(C_MIST, ts_fmt)}")
 
 
-# ── Help ─────────────────────────────────────────────────────
 
 def cmd_help(args):
     print(f"""
@@ -342,7 +343,6 @@ def cmd_help(args):
 """)
 
 
-# ── Entry point ──────────────────────────────────────────────
 
 COMMANDS = {
     "sync":    cmd_sync,

@@ -17,6 +17,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
+from typing import Optional, Tuple, Dict, List
 
 
 CACHE_FILE   = Path.home() / ".cache" / "cieldots-weather.json"
@@ -73,7 +74,7 @@ def cache_age() -> float:
         return float("inf")
 
 
-def load_cache() -> dict | None:
+def load_cache() -> Optional[Dict]:
     try:
         with open(CACHE_FILE) as f:
             return json.load(f)
@@ -89,7 +90,7 @@ def save_cache(data: dict):
 
 # ── Fetch ─────────────────────────────────────────────────────
 
-def fetch_weather() -> dict | None:
+def fetch_weather() -> Optional[Dict]:
     try:
         req = Request(WTTR_URL, headers={"User-Agent": "CielDots/1.0"})
         with urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
@@ -100,7 +101,7 @@ def fetch_weather() -> dict | None:
         return None
 
 
-def get_weather(force_refresh: bool = False) -> tuple[dict | None, bool]:
+def get_weather(force_refresh: bool = False) -> Tuple[Optional[Dict], bool]:
     """Returns (data, from_cache)"""
     age = cache_age()
 

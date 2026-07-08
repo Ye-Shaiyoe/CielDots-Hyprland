@@ -18,6 +18,9 @@ import time
 import argparse
 import subprocess
 from pathlib import Path
+from typing import Optional
+import subprocess
+from pathlib import Path
 
 
 # ── Rimuru temp color thresholds ─────────────────────────────
@@ -40,7 +43,7 @@ def temp_icon(temp: int) -> str:
 
 # ── CPU temperature ──────────────────────────────────────────
 
-def read_cpu_sysfs() -> int | None:
+def read_cpu_sysfs() -> Optional[int]:
     """Read highest temp from /sys/class/thermal/thermal_zone*/temp"""
     zones = glob.glob("/sys/class/thermal/thermal_zone*/temp")
     temps = []
@@ -54,7 +57,7 @@ def read_cpu_sysfs() -> int | None:
     return max(temps) if temps else None
 
 
-def read_cpu_lmsensors() -> int | None:
+def read_cpu_lmsensors() -> Optional[int]:
     """Parse lm_sensors JSON output for CPU package temp"""
     try:
         result = subprocess.run(
@@ -78,7 +81,7 @@ def read_cpu_lmsensors() -> int | None:
         return None
 
 
-def get_cpu_temp() -> int | None:
+def get_cpu_temp() -> Optional[int]:
     # Try lm_sensors first (more accurate)
     temp = read_cpu_lmsensors()
     if temp is not None:
@@ -89,7 +92,7 @@ def get_cpu_temp() -> int | None:
 
 # ── GPU temperature ──────────────────────────────────────────
 
-def get_gpu_temp_nvidia() -> int | None:
+def get_gpu_temp_nvidia() -> Optional[int]:
     try:
         result = subprocess.run(
             ["nvidia-smi", "--query-gpu=temperature.gpu", "--format=csv,noheader"],
@@ -102,7 +105,7 @@ def get_gpu_temp_nvidia() -> int | None:
     return None
 
 
-def get_gpu_temp_amd() -> int | None:
+def get_gpu_temp_amd() -> Optional[int]:
     """Read AMD GPU temp from hwmon sysfs"""
     patterns = [
         "/sys/class/drm/card*/device/hwmon/hwmon*/temp1_input",
@@ -120,7 +123,7 @@ def get_gpu_temp_amd() -> int | None:
     return None
 
 
-def get_gpu_temp() -> int | None:
+def get_gpu_temp() -> Optional[int]:
     temp = get_gpu_temp_nvidia()
     if temp is not None:
         return temp
@@ -129,7 +132,7 @@ def get_gpu_temp() -> int | None:
 
 # ── Output formatters ────────────────────────────────────────
 
-def fmt_json(cpu: int | None, gpu: int | None) -> str:
+def fmt_json(cpu: Optional[int], gpu: Optional[int]) -> str:
     return json.dumps({
         "cpu": cpu,
         "gpu": gpu,
@@ -137,7 +140,7 @@ def fmt_json(cpu: int | None, gpu: int | None) -> str:
     })
 
 
-def fmt_waybar(cpu: int | None, gpu: int | None, target: str = "cpu") -> str:
+def fmt_waybar(cpu: Optional[int], gpu: Optional[int], target: str = "cpu") -> str:
     """
     Waybar custom module format:
     stdout → text, tooltip → full info, class → CSS class
@@ -160,7 +163,7 @@ def fmt_waybar(cpu: int | None, gpu: int | None, target: str = "cpu") -> str:
     return json.dumps(output)
 
 
-def fmt_plain(cpu: int | None, gpu: int | None) -> str:
+def fmt_plain(cpu: Optional[int], gpu: Optional[int]) -> str:
     parts = []
     if cpu is not None:
         parts.append(f"CPU: {cpu}°C {temp_icon(cpu)}")
@@ -169,7 +172,7 @@ def fmt_plain(cpu: int | None, gpu: int | None) -> str:
     return "  ".join(parts) if parts else "No sensors found"
 
 
-def fmt_pretty(cpu: int | None, gpu: int | None) -> str:
+def fmt_pretty(cpu: Optional[int], gpu: Optional[int]) -> str:
     lines = ["── Temperature Monitor ──────────────────"]
     if cpu is not None:
         bar_len = min(cpu, 100) // 5

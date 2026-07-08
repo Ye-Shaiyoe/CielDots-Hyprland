@@ -58,6 +58,17 @@ set_wallpaper() {
 
     echo "$img" > "$CACHE_FILE"
     log "$img" "Wallpaper changed" "$(basename "$img")"
+
+    # ── Dynamic color scheme — extract wallpaper colors ──────
+    # Set WALLPAPER_NO_COLORS=1 to disable
+    if [[ "${WALLPAPER_NO_COLORS:-0}" != "1" ]]; then
+        local cs_script="$HOME/.config/hypr/scripts/colorscheme.py"
+        if command -v python3 &>/dev/null && [[ -f "$cs_script" ]]; then
+            # Run async — don't block wallpaper change
+            python3 "$cs_script" "$img" &>/dev/null &
+            disown
+        fi
+    fi
 }
 
 set_random() {
