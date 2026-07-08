@@ -185,8 +185,11 @@ gui-apps/slurp          -X
 # XDG portals
 sys-apps/xdg-desktop-portal   geoclue screencast
 
-# swww wallpaper
+# swww wallpaper daemon
 gui-apps/swww           wayland
+
+# waypaper — GUI wallpaper picker frontend
+gui-apps/waypaper       wayland
 
 # Notification (mako)
 x11-misc/mako           dbus wayland
@@ -228,6 +231,9 @@ gui-apps/hyprpicker         ~amd64
 
 # swww wallpaper daemon
 gui-apps/swww               ~amd64
+
+# waypaper — GUI wallpaper picker frontend
+gui-apps/waypaper           ~amd64
 
 # Waybar
 gui-apps/waybar             ~amd64
@@ -340,6 +346,7 @@ install_packages() {
 
     info "── Wallpaper"
     emerge_pkg "gui-apps/swww"
+    emerge_pkg "gui-apps/waypaper"   # GUI thumbnail picker — uses swww as backend
 
     info "── Screenshot tools"
     emerge_pkg "media-gfx/grim"

@@ -1,5 +1,5 @@
 #!/bin/bash
-# /* ---- 💫 CielDots — Custom Launcher 💫 ---- */
+# /* ---- ✦ CielDots — Custom Launcher ✦ ---- */
 # Multi-mode launcher wrapper around wofi
 # Usage:
 #   launcher.sh apps       → app launcher (default)
@@ -230,6 +230,31 @@ mode_files() {
 }
 
 # ══════════════════════════════════════════════════════════════
+# MODE: wallpaper
+# ══════════════════════════════════════════════════════════════
+mode_wallpaper() {
+    local walls_dir="${WALLPAPER_DIR:-$HOME/Pictures/Wallpapers}"
+    if [[ ! -d "$walls_dir" ]]; then
+        notif "Wallpaper" "Directory not found: $walls_dir"
+        exit 1
+    fi
+
+    local selected
+    # List all image files and prompt user with wofi
+    selected=$(find "$walls_dir" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" \) -printf "%f\n" | sort | \
+        "${WOFI_BASE[@]}" \
+            --show dmenu \
+            --prompt "  Select Wallpaper..." \
+            --width 600 \
+            --height 400 \
+            --define=no_actions=true)
+
+    [[ -z "$selected" ]] && exit 0
+
+    bash ~/.config/hypr/scripts/wallpaper.sh "$walls_dir/$selected"
+}
+
+# ══════════════════════════════════════════════════════════════
 # Main
 # ══════════════════════════════════════════════════════════════
 case "$MODE" in
@@ -238,8 +263,9 @@ case "$MODE" in
     clipboard|c)  mode_clipboard ;;
     emoji|e)      mode_emoji ;;
     files|f)      mode_files ;;
+    wallpaper|w)  mode_wallpaper ;;
     *)
-        echo "Usage: $(basename "$0") [apps|power|clipboard|emoji|files]"
+        echo "Usage: $(basename "$0") [apps|power|clipboard|emoji|files|wallpaper]"
         exit 1
         ;;
 esac

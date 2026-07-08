@@ -33,12 +33,10 @@ do_mute() {
     # Track in mute list
     grep -qxF "$app" "$MUTE_FILE" 2>/dev/null || echo "$app" >> "$MUTE_FILE"
 
-    # Write mako rule to suppress
-    cat >> "$MAKO_RULES_FILE" << RULE
-
-[app-name=$app]
-invisible=1
-RULE
+    # Write mako rule to suppress (guard against duplicate entries)
+    if ! grep -qF "[app-name=$app]" "$MAKO_RULES_FILE" 2>/dev/null; then
+        printf '\n[app-name=%s]\ninvisible=1\n' "$app" >> "$MAKO_RULES_FILE"
+    fi
 
     makoctl reload
     notif_send "Muted" "Notifications from '$app' silenced"
@@ -52,20 +50,11 @@ do_unmute() {
     # Remove from mute list
     sed -i "/^${app}$/d" "$MUTE_FILE" 2>/dev/null
 
-    # Remove from rules file
+    # Remove block: [app-name=X]\ninvisible=1 from rules file
     if [[ -f "$MAKO_RULES_FILE" ]]; then
-        # Remove the block: [app-name=X]\ninvisible=1\n
-        python3 - "$MAKO_RULES_FILE" "$app" << 'PYEOF'
-import sys, re
-path, app = sys.argv[1], sys.argv[2]
-with open(path) as f:
-    content = f.read()
-# Remove block for this app
-pattern = rf'\n\[app-name={re.escape(app)}\]\ninvisible=1\n?'
-content = re.sub(pattern, '', content)
-with open(path, 'w') as f:
-    f.write(content)
-PYEOF
+        sed -i "/^\[app-name=${app}\]/,/^invisible=1$/d" "$MAKO_RULES_FILE"
+        # Remove orphaned blank lines left behind
+        sed -i '/^$/N;/^\n$/d' "$MAKO_RULES_FILE"
     fi
 
     makoctl reload

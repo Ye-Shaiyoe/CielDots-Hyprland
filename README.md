@@ -192,15 +192,16 @@ Workspaces have names: `web`, `code`, `files`, `media`, `misc`
 
 | Key | Action |
 |-----|--------|
+| `Super + W` | Open **Waypaper** GUI wallpaper picker |
 | `Super + Shift + W` | Set random wallpaper |
-| `Super + Ctrl + W` | Next wallpaper in list |
+| `Super + Ctrl + W` | Previous wallpaper |
 | `Super + Shift + G` | Toggle gaming mode on/off |
 
 ### System
 
 | Key | Action |
 |-----|--------|
-| `Super + L` | Lock screen (Hyprlock) |
+| `Super + Alt + L` | Lock screen (Hyprlock) |
 | `Super + Shift + Q` | Exit Hyprland |
 
 ### Volume & Brightness

@@ -288,7 +288,7 @@ def main():
         fmt_widget(cur, forecast, from_cache, stale)
     else:
         # Default: Waybar module
-        print(fmt_waybar(cur, stale, stale))
+        print(fmt_waybar(cur, from_cache, stale))
 
 
 if __name__ == "__main__":
