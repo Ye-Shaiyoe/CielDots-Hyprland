@@ -292,6 +292,64 @@ It starts: `swww-daemon` → wallpaper → Waybar → Mako → Polkit agent → 
 
 ---
 
+## Dynamic Color Scheme
+
+Every time you change the wallpaper, the color scheme adapts automatically across the whole desktop.
+
+```
+Set wallpaper (wallpaper.sh)
+    │
+    └─► colorscheme.py runs in background
+            │
+            ├─► K-Means clustering → extracts 8 dominant colors
+            ├─► Builds full palette (bg, text, accent, status colors)
+            │
+            ├─► ~/.config/kitty/themes/dynamic.conf     (reloaded live)
+            ├─► ~/.config/waybar/dynamic-colors.css     (pkill -USR2)
+            ├─► ~/.config/mako/config                   (makoctl reload)
+            ├─► ~/.config/wofi/style.css                (next open)
+            └─► hyprctl keyword → border colors          (instant)
+```
+
+**Example — red-dominant wallpaper:**
+- Borders glow red-orange
+- Kitty cursor and selection turn red-orange
+- Waybar active workspace highlights red
+- Mako notification border shifts red
+
+**Example — blue/ocean wallpaper:**
+- Everything shifts to deep blue accents
+- Still dark background, but accent hue matches the water
+
+### Manual controls
+
+```bash
+# Re-apply last extracted palette (after reboot, etc.)
+colorscheme --reload
+# shortcut: Super + Shift + X
+
+# Preview palette without applying
+colorscheme ~/Pictures/Wallpapers/some.jpg --dry
+
+# Show current palette
+colorscheme --show
+# shortcut: Super + Ctrl + X
+
+# Disable auto-color-extraction (keep manual palette)
+export WALLPAPER_NO_COLORS=1
+wallpaper --next
+```
+
+### Image reading backends (priority order)
+
+1. **Pillow** (`dev-python/pillow`) — fastest, recommended
+2. **ImageMagick** (`media-gfx/imagemagick`) — fallback
+3. **ffmpeg** (`media-video/ffmpeg`) — second fallback
+
+If none are available, falls back to Rimuru Tempest defaults.
+
+---
+
 ## Terminal Setup
 
 ### Kitty — JaKooLit style

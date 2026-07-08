@@ -404,6 +404,7 @@ install_packages() {
     emerge_pkg "app-misc/jq"
     emerge_pkg "net-misc/curl"
     emerge_pkg "dev-python/requests"
+    emerge_pkg "dev-python/pillow"
     emerge_pkg "app-misc/lm-sensors"
     emerge_pkg "app-misc/fastfetch"
     emerge_pkg "app-shells/zsh-history-substring-search"
@@ -488,6 +489,8 @@ install_symlinks() {
     do_symlink ".config/gtk-4.0/settings.ini"
     do_symlink ".config/fastfetch/config.jsonc"
     do_symlink ".config/fastfetch/rimuru.txt"
+    do_symlink ".config/waybar/dynamic-colors.css"
+    do_symlink ".config/kitty/themes/dynamic.conf"
 
     # Scripts
     info "Linking scripts..."
