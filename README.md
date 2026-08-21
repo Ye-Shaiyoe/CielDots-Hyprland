@@ -56,7 +56,7 @@ The installer (`install.sh`) handles everything in one shot: Portage overlays, U
 
 ```bash
 # 1. Clone the dotfiles
-git clone https://github.com/yourusername/CielDots-Hyprland ~/.dotfiles
+git clone https://github.com/Ye-Shaiyoe/CielDots-Hyprland ~/.dotfiles
 
 # 2. Enter the directory
 cd ~/.dotfiles
