@@ -81,15 +81,24 @@ The installer will walk you through everything automatically. No manual Portage 
 7. **Sets up Zsh** — configures `ZDOTDIR` and sets zsh as default shell
 8. **Enables services** — works with both OpenRC and systemd
 
-### If something goes wrong
+### Rollback & Uninstallation
 
-The installer creates a snapshot of every file before touching it. To restore your previous state:
+If you ever want to revert or completely uninstall CielDots:
 
 ```bash
+# Option 1: Complete interactive uninstaller
+./uninstall.sh 
+
+# Option 2: Quick rollback of file modifications
 ./install.sh --rollback
 ```
 
-Backups are also saved to `~/.config-backup-cieldots/<timestamp>/` for manual recovery.
+**What `uninstall.sh` does:**
+- 🔄 **Restores previous backups** from `~/.config-backup-cieldots/`
+- 🗑️ **Removes all CielDots symlinks** from `~/.config/` and `~/.local/bin/`
+- 🧹 **Cleans Portage files** (`/etc/portage/package.use/cieldots` & `package.accept_keywords/cieldots`)
+- 🧼 **Removes caches, session entries & themes**
+- 📦 **Optionally assists in unmerging** packages via `emerge --ask --depclean`
 
 ---
 

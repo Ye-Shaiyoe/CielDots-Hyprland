@@ -707,10 +707,16 @@ print_summary() {
     echo ""
 }
 
-# ── Rollback mode ─────────────────────────────────────────────
+# ── Rollback & Uninstall modes ────────────────────────────────
 if [[ "${1:-}" == "--rollback" ]]; then
     rollback
     exit 0
+fi
+
+if [[ "${1:-}" == "--uninstall" || "${1:-}" == "-u" ]]; then
+    if [[ -f "$DOTFILES_DIR/uninstall.sh" ]]; then
+        exec bash "$DOTFILES_DIR/uninstall.sh"
+    fi
 fi
 
 # ── Main entry point ─────────────────────────────────────────
