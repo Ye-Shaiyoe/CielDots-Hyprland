@@ -135,6 +135,7 @@ def read_image_pixels(path: str) -> List[Tuple[int,int,int]]:
     """
     # Try Pillow first (fastest)
     try:
+        # pyrefly: ignore [missing-import]
         from PIL import Image
         img = Image.open(path).convert("RGB")
         # Downsample to max 150x150 for speed

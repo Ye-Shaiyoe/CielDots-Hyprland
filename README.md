@@ -92,23 +92,26 @@ Backups are also saved to `~/.config-backup-cieldots/<timestamp>/` for manual re
 
 ```
 CielDots-Hyprland/
-├── install.sh                  ← One-shot Gentoo installer
+├── install.sh                  ← Robust Gentoo installer with rollback & Portage safety
 ├── README.md
 │
 ├── .config/
 │   ├── hypr/
-│   │   ├── hyprland.conf       ← Main config (Rimuru theme, slime animations)
+│   │   ├── hyprland.lua        ← Modern Lua config (Hyprland v0.55+ API)
+│   │   ├── hyprland.conf       ← Legacy config fallback
 │   │   ├── hyprlock.conf       ← Lock screen (frosted glass, cyan clock)
 │   │   └── hypridle.conf       ← Idle timeouts
 │   │
 │   ├── waybar/
-│   │   ├── config.jsonc        ← Bar modules
-│   │   └── style.css           ← Rimuru Tempest glassmorphism styling
+│   │   ├── config.jsonc        ← Bar modules (dynamic colors, weather, CPU temp)
+│   │   ├── style.css           ← Rimuru Tempest glassmorphism styling
+│   │   └── dynamic-colors.css  ← Auto-extracted wallpaper palette
 │   │
 │   ├── kitty/
 │   │   ├── kitty.conf          ← Terminal (cursor trail, opacity, font)
 │   │   └── themes/
-│   │       └── rimuru.conf     ← Rimuru color palette (swappable)
+│   │       ├── rimuru.conf     ← Rimuru static color palette
+│   │       └── dynamic.conf    ← Wallpaper-synced dynamic palette
 │   │
 │   ├── fastfetch/
 │   │   ├── config.jsonc        ← JaKooLit-style tree layout
@@ -134,10 +137,17 @@ CielDots-Hyprland/
 │       └── settings.ini
 │
 └── scripts/
-    ├── startup.sh
-    ├── wallpaper.sh
-    ├── gaming-mode.sh
-    └── screenshot.sh
+    ├── dots.py                 ← Python CLI manager (sync, backup, restore, status)
+    ├── startup.sh              ← Hyprland startup sequence
+    ├── startup-splash.py       ← Animated boot splash
+    ├── wallpaper.sh            ← swww wallpaper manager
+    ├── colorscheme.py          ← Dynamic color generator from wallpaper
+    ├── gaming-mode.sh          ← High-performance gaming toggle
+    ├── screenshot.sh           ← Grim/Slurp screenshot tool
+    ├── launcher.sh             ← Wofi multi-mode launcher (apps, power, emoji, clip)
+    ├── notif.sh                ← Mako notification helper
+    ├── temp-monitor.py         ← CPU & GPU temp sensor monitor
+    └── weather.py              ← wttr.in weather fetcher
 ```
 
 ---
@@ -538,3 +548,7 @@ your_username ALL=(ALL) NOPASSWD: /usr/bin/cpupower
 ## License
 
 MIT — do whatever you want with it. A star is always appreciated. ✦
+
+
+© Muhammad Yusuf Akram
+

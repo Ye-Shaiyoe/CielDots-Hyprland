@@ -56,17 +56,22 @@ fi
 
 # ---- D-Bus & Portal ----
 log "Setting up D-Bus environment..."
-dbus-update-activation-environment --systemd \
-    WAYLAND_DISPLAY \
-    XDG_CURRENT_DESKTOP \
-    XDG_SESSION_TYPE \
-    HYPRLAND_INSTANCE_SIGNATURE \
-    QT_QPA_PLATFORM \
-    GDK_BACKEND 2>/dev/null
+if command -v dbus-update-activation-environment &>/dev/null; then
+    dbus-update-activation-environment --systemd \
+        WAYLAND_DISPLAY \
+        XDG_CURRENT_DESKTOP \
+        XDG_SESSION_TYPE \
+        HYPRLAND_INSTANCE_SIGNATURE \
+        QT_QPA_PLATFORM \
+        GDK_BACKEND 2>/dev/null || \
+    dbus-update-activation-environment --all 2>/dev/null || true
+fi
 
-systemctl --user import-environment \
-    WAYLAND_DISPLAY \
-    XDG_CURRENT_DESKTOP 2>/dev/null
+if command -v systemctl &>/dev/null; then
+    systemctl --user import-environment \
+        WAYLAND_DISPLAY \
+        XDG_CURRENT_DESKTOP 2>/dev/null || true
+fi
 
 # ---- Core services ----
 launch swww-daemon swww-daemon

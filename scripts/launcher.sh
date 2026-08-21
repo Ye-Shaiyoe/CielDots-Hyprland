@@ -36,6 +36,52 @@ mode_apps() {
 # ══════════════════════════════════════════════════════════════
 # MODE: power
 # ══════════════════════════════════════════════════════════════
+_power_action() {
+    local action="$1"
+    case "$action" in
+        shutdown)
+            if command -v loginctl &>/dev/null; then
+                loginctl poweroff
+            elif command -v systemctl &>/dev/null; then
+                systemctl poweroff
+            elif command -v openrc-shutdown &>/dev/null; then
+                openrc-shutdown -p now
+            else
+                sudo poweroff
+            fi
+            ;;
+        reboot)
+            if command -v loginctl &>/dev/null; then
+                loginctl reboot
+            elif command -v systemctl &>/dev/null; then
+                systemctl reboot
+            elif command -v openrc-shutdown &>/dev/null; then
+                openrc-shutdown -r now
+            else
+                sudo reboot
+            fi
+            ;;
+        suspend)
+            if command -v loginctl &>/dev/null; then
+                loginctl suspend
+            elif command -v systemctl &>/dev/null; then
+                systemctl suspend
+            elif command -v zzz &>/dev/null; then
+                zzz
+            fi
+            ;;
+        hibernate)
+            if command -v loginctl &>/dev/null; then
+                loginctl hibernate
+            elif command -v systemctl &>/dev/null; then
+                systemctl hibernate
+            elif command -v ZZZ &>/dev/null; then
+                ZZZ
+            fi
+            ;;
+    esac
+}
+
 mode_power() {
     local options=(
         "⏻  Shutdown"
@@ -60,13 +106,13 @@ mode_power() {
 
     case "$choice" in
         *Shutdown*)
-            _confirm "Shutdown" && systemctl poweroff ;;
+            _confirm "Shutdown" && _power_action shutdown ;;
         *Reboot*)
-            _confirm "Reboot" && systemctl reboot ;;
+            _confirm "Reboot" && _power_action reboot ;;
         *Suspend*)
-            systemctl suspend ;;
+            _power_action suspend ;;
         *Hibernate*)
-            systemctl hibernate ;;
+            _power_action hibernate ;;
         *Lock*)
             hyprlock ;;
         *Logout*)

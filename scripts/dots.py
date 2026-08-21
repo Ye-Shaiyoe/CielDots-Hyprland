@@ -26,6 +26,7 @@ LOG_FILE    = HOME / ".cache" / "cieldots-dots.log"
 
 # Map: source (relative to DOTS_DIR) → destination (relative to HOME)
 SYMLINK_MAP = {
+    ".config/hypr/hyprland.lua":          ".config/hypr/hyprland.lua",
     ".config/hypr/hyprland.conf":         ".config/hypr/hyprland.conf",
     ".config/hypr/hyprlock.conf":         ".config/hypr/hyprlock.conf",
     ".config/hypr/hypridle.conf":         ".config/hypr/hypridle.conf",
