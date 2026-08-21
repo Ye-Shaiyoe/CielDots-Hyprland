@@ -45,13 +45,18 @@ The installer (`install.sh`) handles everything in one shot: Portage overlays, U
 
 ---
 
+## Preview 
+<img width="1024" height="1024" alt="desktop_preview" src="https://github.com/user-attachments/assets/f36403d5-dec7-4642-aeea-7f4b03d3149a" />
+
+---
+
 ## Quick Install
 
 > **Requirements:** Gentoo Linux with `emerge`, `eselect`, `git`, and `curl` available on your system.
 
 ```bash
 # 1. Clone the dotfiles
-git clone https://github.com/yourusername/CielDots-Hyprland ~/.dotfiles
+git clone https://github.com/Ye-Shaiyoe/CielDots-Hyprland ~/.dotfiles
 
 # 2. Enter the directory
 cd ~/.dotfiles
